@@ -1,4 +1,4 @@
-/// Magic Trick is a trick taking game designed by Chris Wray
+/// Magic Trick is a trick taking game designed and © 2023 by Chris Wray
 /// This code is © 2023 by Dan Bravender
 
 import 'package:json_annotation/json_annotation.dart';
@@ -7,6 +7,21 @@ part 'magictrick_base.g.dart';
 
 /// 0 - human player, 1 - left player, 2 - top player, 3 - right player
 typedef Player = int;
+
+/// Each possible move must have a unique ID for the neural network
+/// 0 - 55 card to play (only allowed when state is playCard)
+/// 56 - 112 card to bid (only allowed when state is optionalBid)
+/// 113 - pass (only allowed when state is optionalBid)
+typedef Move = int;
+const Move bidOffset = 56;
+const Move pass = 113;
+
+/// When it is a player's turn they must first play a card
+/// and then they may bid or pass
+enum State {
+  playCard,
+  optionalBid,
+}
 
 /// Each suit in the game
 enum Suit {
@@ -111,7 +126,7 @@ enum ChangeType {
   /// Highlight the referenced card
   showWinningCard,
 
-  /// Wait for the user to tap the screen
+  /// Wait for the user to tap the screen and display the game over dialog
   gameOver,
 }
 
@@ -229,4 +244,274 @@ int valueForCard(Suit leadSuit, Card card) {
     return card.value + 50;
   }
   return card.value;
+}
+
+/// Rules engine for Magic Trick
+@JsonSerializable()
+class Game {
+  //implements GameState<Move, Player> {
+  State state = State.playCard;
+
+  /// hands[0] is the human players hand
+  /// AI hands are hands[0-3]
+  List<List<Card>> hands = [];
+
+  /// When a card is flipped face up it is added to visibleCards
+  Set<Card> visibleCards = {};
+
+  /// When a player has bid the card is added here
+  Map<Player, Card> bidCards = {};
+
+  /// List of animations to run since the last game state was displayed
+  List<List<Change>> changes = [];
+
+  /// Cards played into the current trick
+  Map<Player, Card> currentTrick = {};
+
+  /// Tracks how many tricks each player has taken
+  Map<Player, int> tricksTaken = {0: 0, 1: 0, 2: 0, 3: 0};
+
+  /// Which suit was led for the current trick - null at the start of a trick
+  Suit? leadSuit;
+
+  /// Tracks scores for each player
+  Map<Player, int> scores = {0: 0, 1: 0, 2: 0, 3: 0};
+
+  /// Player whose turn it is
+  @override
+  Player? currentPlayer = 0;
+
+  /// When set it means the hand has a winner (used for tree search)
+  @override
+  Player? winner;
+
+  /// When set it means the game is over
+  Player? overallWinner;
+
+  /// Player who starts a hand
+  int leadPlayer = 0;
+
+  /// Current game round - 4 rounds are played per game
+  int round = 0;
+
+  Game() {
+    deal();
+  }
+
+  deal() {
+    leadSuit = null;
+    round += 1;
+    tricksTaken = {0: 0, 1: 0};
+    hands = [];
+    state = State.playCard; // always start in the playCard state
+    currentPlayer = leadPlayer;
+    leadPlayer = (leadPlayer + 1) % 2;
+    int dealIndex = changes.length;
+    int cardSortingIndex = changes.length + 1;
+    changes.addAll([
+      [], // deal
+      [], // card sorting
+    ]);
+    List<Card> cards = deck();
+    for (int y = 0; y < 14; y++) {
+      for (int player = 0; player < 4; player++) {
+        var card = cards.removeAt(0);
+        changes[dealIndex].add(Change(
+          type: ChangeType.deal,
+          objectId: card.id,
+          dest: Location.hand,
+          player: player,
+          handOffset: y,
+        ));
+      }
+    }
+    for (int player = 0; player < 4; player++) {
+      hands[0].sort((a, b) => a.value.compareTo(b.value));
+      for (int y = 0; y < 14; y++) {
+        var card = hands[player][y];
+        changes[cardSortingIndex].add(Change(
+            type: ChangeType.deal,
+            objectId: card.id,
+            dest: Location.hand,
+            player: player,
+            handOffset: y));
+      }
+    }
+    showPlayable();
+  }
+
+  /// Creates a completely independant copy of the current game-state
+  Game clone() {
+    var game = Game();
+    game.round = round;
+    game.state = state;
+    game.visibleCards = Set.from(visibleCards);
+    game.currentPlayer = currentPlayer;
+    List<List<Card>> newHands = [];
+    for (var player = 0; player < 4; player++) {
+      newHands.add(List.from(hands[player]));
+      if (bidCards[player] != null) {
+        game.bidCards[player] = bidCards[player]!;
+      }
+    }
+    game.leadPlayer = leadPlayer;
+    game.hands = newHands;
+    game.tricksTaken = Map.from(tricksTaken);
+    game.scores = Map.from(scores);
+    game.winner = winner;
+    game.overallWinner = overallWinner;
+    game.leadSuit = leadSuit;
+    game.currentTrick = Map.from(currentTrick);
+    return game;
+  }
+
+  Game cloneAndApplyMove(Move move) {
+    //, Node<Move, Player>? root) {
+    var newGame = clone();
+    // reset previous MCTS round winner
+    newGame.winner = null;
+    // reset previous MCTS round scores
+    newGame.scores = {0: 0, 1: 0, 2: 0, 3: 0};
+    Player? currentMCTSPlayer;
+    // if (root != null) currentMCTSPlayer = root.gameState!.currentPlayer!;
+    newGame.changes = [[]]; // card from player to table
+    newGame.currentTrick = Map.from(currentTrick);
+    List<Card> currentHand = newGame.hands[currentPlayer!];
+    newGame.hands[currentPlayer!] = currentHand;
+    var card = currentHand.firstWhere((c) => c.id == move);
+    currentHand.remove(card);
+    newGame.changes[0].add(Change(
+        type: ChangeType.play,
+        dest: Location.play,
+        objectId: move,
+        player: currentPlayer!));
+    newGame.hidePlayable();
+    newGame.currentTrick[currentPlayer!] = card;
+    newGame.currentPlayer = (currentPlayer! + 1) % 4;
+    // end trick
+    if (newGame.currentTrick.length == 4) {
+      var trickWinner =
+          getWinner(leadSuit: newGame.leadSuit!, trick: newGame.currentTrick);
+      newGame.leadPlayer = trickWinner.player;
+      var winningCard = trickWinner.card;
+      newGame.tricksTaken[trickWinner.player] =
+          newGame.tricksTaken[trickWinner]! + 1;
+      // winner of the trick leads
+      newGame.currentPlayer = trickWinner.player;
+      newGame.changes.add([
+        Change(
+            type: ChangeType.showWinningCard,
+            dest: Location.play,
+            player: trickWinner.player,
+            objectId: winningCard.id),
+        Change(
+            type: ChangeType.optionalPause, dest: Location.play, objectId: 0),
+        Change(
+            objectId: winningCard.id,
+            dest: Location.play,
+            type: ChangeType.hidePlayable,
+            player: newGame.currentPlayer ?? 0),
+      ]);
+      newGame.changes.add([]); // trick back to player
+      int offset = newGame.changes.length - 1;
+      newGame.currentTrick.forEach((player, card) {
+        newGame.changes[offset].add(Change(
+            type: ChangeType.tricksToWinner,
+            dest: Location.tricksTaken,
+            objectId: card.id,
+            player: trickWinner.player,
+            tricksTaken: newGame.tricksTaken[trickWinner.player]!));
+      });
+      newGame.currentTrick = {};
+    }
+    if (newGame.hands[0].isEmpty) {
+      List<Player> winners = [];
+      int highestScore = 0;
+      newGame.scores.forEach((player, score) {
+        if (score > highestScore) {
+          highestScore = score;
+        }
+      });
+      newGame.scores.forEach((player, score) {
+        if (score == highestScore) {
+          winners.add(player);
+          newGame.winner = player;
+        }
+      });
+      if (winners.contains(currentMCTSPlayer)) {
+        newGame.winner = currentMCTSPlayer;
+      }
+      if (newGame.round >= 4 && winners.length == 1) {
+        newGame.changes.add([
+          Change(type: ChangeType.gameOver, dest: Location.play, objectId: 0),
+        ]);
+        newGame.overallWinner = newGame.winner;
+        return newGame;
+      } else {
+        newGame.changes.add([
+          Change(
+            type: ChangeType.shuffle,
+            dest: Location.play,
+            objectId: 0,
+          )
+        ]);
+        newGame.deal();
+      }
+    }
+    newGame.showPlayable();
+    return newGame;
+  }
+
+  @override
+  List<Move> getMoves() {
+    List<Move> moves = [];
+    List<Card> playableCards =
+        (hands[currentPlayer!].toSet()..removeAll(visibleCards)).toList();
+    if (state == State.playCard) {
+      if (leadSuit != null) {
+        // must follow
+        moves = playableCards
+            .where((c) => c.suit == leadSuit)
+            .map((c) => c.id)
+            .toList();
+        if (moves.isNotEmpty) {
+          return moves;
+        }
+      }
+      return playableCards.map((c) => c.id).toList();
+    } else {
+      // State.bid
+      return playableCards.map((c) => c.id + bidOffset).toList() + [pass];
+    }
+  }
+
+  hidePlayable() {
+    if (changes.isEmpty) {
+      changes = [[]];
+    }
+
+    List<Change> playableChanges = changes[changes.length - 1];
+    for (var card in hands[0]) {
+      playableChanges.add(Change(
+          objectId: card.id,
+          type: ChangeType.hidePlayable,
+          dest: Location.hand));
+    }
+  }
+
+  showPlayable() {
+    if (changes.isEmpty) {
+      changes = [[]];
+    }
+    List<Change> playableChanges = changes[changes.length - 1];
+
+    if (currentPlayer == 0) {
+      for (var id in getMoves()) {
+        playableChanges.add(Change(
+            objectId: id, type: ChangeType.showPlayable, dest: Location.hand));
+      }
+    } else {
+      hidePlayable();
+    }
+  }
 }
