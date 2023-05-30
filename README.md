@@ -9,6 +9,34 @@ Once I finish cleaning it up I will also release the source for my Dart MCTS / n
 ## Principles
 
 * Every object (e.g. card) and every possible move should have a single unique ID. This helps when encoding inputs and decoding outputs from the neural network. Unique IDs are also useful when manipulating the user interface. In some games (such as Cat in the Box) there are identical copies of the same card but they still need to have a unique ID so the correct card is moved.
+    
+    Action IDs from `magictrick`:
+    ```dart
+    /// 0 - 55 card to play (only allowed when state is playCard)
+    /// 56 - 112 card to bid (only allowed when state is optionalBid)
+    /// 113 - pass (only allowed when state is optionalBid)
+    typedef Move = int;
+    const Move bidOffset = 56;
+    const Move pass = 113;
+    ```
+    Card IDs from `magictrick`:
+    ```dart
+    /// For the UI and neural network each game element must have a unique ID
+    int id = 0;
+    for (var suit in Suit.values) {
+      reverseLookup[suit] = {};
+      for (var value = 0; value <= 7; value++) {
+        Card card = Card(
+          id: id++,
+          value: value,
+          suit: suit,
+        );
+        deck.add(card);
+        reverseLookup[card.suit]![card.value] = card.id;
+      }
+    }
+    ```
+
 * Animations are handled using lists of declarative change objects:
 
     This change moves a card to a player's hand:
