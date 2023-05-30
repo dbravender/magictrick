@@ -49,7 +49,7 @@ Once I finish cleaning it up I will also release the source for my Dart MCTS / n
         player: player,
         handOffset: handOffset,
         handLength: handLength,
-    ));
+    )
     ```
 
     Each `Game` has a `List<List<Change>>` `changes` property. While the engine is updating the game state it's adding new `changes`. Each sublist animates simultaneously.
