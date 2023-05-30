@@ -6,7 +6,7 @@ Hopefully, this implementation can be used to learn how to implement game engine
 
 Once I finish cleaning it up I will also release the source for my Dart MCTS / neural network pipeline (currently interfaces with https://github.com/davidADSP/SIMPLE).
 
-## Principals
+## Principles
 
 * Every object (e.g. card) and every possible move should have a single unique ID. This helps when encoding inputs and decoding outputs from the neural network. Unique IDs are also useful when manipulating the user interface. In some games (such as Cat in the Box) there are identical copies of the same card but they still need to have a unique ID so the correct card is moved.
 * Animations are handled using lists of declarative change objects:
