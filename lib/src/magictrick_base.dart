@@ -1,4 +1,4 @@
-/// Magic Trick is a trick taking game designed and © 2023 by Chris Wray
+/// The game rules for Magic Trick were created by Chris Wray, all rights reserved.
 /// This code is © 2023 by Dan Bravender
 
 import 'package:json_annotation/json_annotation.dart';
@@ -97,7 +97,8 @@ List<Card> deck() {
   return deck;
 }
 
-/// Used by the UI to determine which animations should be applied
+/// Used by the UI to determine which animations should be applied between
+/// game states
 enum ChangeType {
   /// Moves a card to a player's hand (after a shuffle)
   deal,

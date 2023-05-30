@@ -1,4 +1,4 @@
-/// magictrick is the rules engine for the card game Magic Trick by Chris Wray
+/// The game rules for Magic Trick were created by Chris Wray, all rights reserved.
 /// source code is © 2023 Dan Bravender
 library magictrick;
 
