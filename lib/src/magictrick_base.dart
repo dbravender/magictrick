@@ -341,7 +341,7 @@ class Game {
     showPlayable();
   }
 
-  /// Creates a completely independant copy of the current game-state
+  /// Creates a completely independent copy of the current game-state
   Game clone() {
     var game = Game();
     game.round = round;
