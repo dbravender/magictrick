@@ -279,11 +279,9 @@ class Game {
   Map<Player, int> scores = {0: 0, 1: 0, 2: 0, 3: 0};
 
   /// Player whose turn it is
-  @override
   Player? currentPlayer = 0;
 
   /// When set it means the hand has a winner (used for tree search)
-  @override
   Player? winner;
 
   /// When set it means the game is over
