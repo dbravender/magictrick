@@ -461,7 +461,6 @@ class Game {
     return newGame;
   }
 
-  @override
   List<Move> getMoves() {
     List<Move> moves = [];
     List<Card> playableCards =
