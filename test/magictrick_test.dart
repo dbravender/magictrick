@@ -9,44 +9,44 @@ void main() {
     });
 
     test('getCard', () {
-      expect(getCard(Suit.hearts, 7),
+      expect(getCard(7, Suit.hearts),
           equals(Card(id: 31, suit: Suit.hearts, value: 7)));
     });
 
     test('getWinner - trump wins', () {
       expect(
           getWinner(leadSuit: Suit.clubs, trick: {
-            0: getCard(Suit.clubs, 1),
-            1: getCard(Suit.diamonds, 2),
-            2: getCard(Suit.hearts, 0),
-            3: getCard(Suit.moons, 7)
+            0: getCard(1, Suit.clubs),
+            1: getCard(2, Suit.diamonds),
+            2: getCard(0, Suit.hearts),
+            3: getCard(7, Suit.moons)
           }),
           equals(
-              WinningPlayerAndCard(player: 2, card: getCard(Suit.hearts, 0))));
+              WinningPlayerAndCard(player: 2, card: getCard(0, Suit.hearts))));
     });
 
     test('getWinner - highest lead card wins', () {
       expect(
           getWinner(leadSuit: Suit.clubs, trick: {
-            0: getCard(Suit.spades, 1),
-            1: getCard(Suit.diamonds, 2),
-            2: getCard(Suit.clubs, 0),
-            3: getCard(Suit.moons, 7)
+            0: getCard(1, Suit.spades),
+            1: getCard(2, Suit.diamonds),
+            2: getCard(0, Suit.clubs),
+            3: getCard(7, Suit.moons)
           }),
           equals(
-              WinningPlayerAndCard(player: 2, card: getCard(Suit.clubs, 0))));
+              WinningPlayerAndCard(player: 2, card: getCard(0, Suit.clubs))));
     });
 
     test('getWinner - highest lead card wins', () {
       expect(
           getWinner(leadSuit: Suit.clubs, trick: {
-            0: getCard(Suit.clubs, 1),
-            1: getCard(Suit.diamonds, 2),
-            2: getCard(Suit.clubs, 0),
-            3: getCard(Suit.moons, 7)
+            0: getCard(1, Suit.clubs),
+            1: getCard(2, Suit.diamonds),
+            2: getCard(0, Suit.clubs),
+            3: getCard(7, Suit.moons)
           }),
           equals(
-              WinningPlayerAndCard(player: 0, card: getCard(Suit.clubs, 1))));
+              WinningPlayerAndCard(player: 0, card: getCard(1, Suit.clubs))));
     });
   });
 }

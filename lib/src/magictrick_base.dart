@@ -38,7 +38,7 @@ const trump = Suit.hearts;
 
 /// Represents a card in the deck
 @JsonSerializable()
-class Card {
+class Card implements Comparable<Card> {
   final int id;
   final int value;
   final Suit suit;
@@ -62,6 +62,11 @@ class Card {
   }
 
   @override
+  int compareTo(Card other) {
+    return value.compareTo(other.value);
+  }
+
+  @override
   int get hashCode => Object.hash(suit, value);
 }
 
@@ -71,7 +76,7 @@ Map<Suit, Map<int, int>> reverseLookup = {};
 Map<int, Card> idToCard = {for (var card in deck()) card.id: card};
 
 /// Get a Card object for the given suit and value
-Card getCard(Suit suit, int value) {
+Card getCard(int value, Suit suit) {
   return idToCard[reverseLookup[suit]![value]]!;
 }
 
@@ -482,6 +487,8 @@ class Game {
       return playableCards.map((c) => c.id + bidOffset).toList() + [pass];
     }
   }
+
+  determine() {}
 
   hidePlayable() {
     if (changes.isEmpty) {
