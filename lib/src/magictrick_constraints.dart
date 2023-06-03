@@ -44,7 +44,7 @@ class Slot {
 
   @override
   String toString() {
-    return "Slot(atLeast: $atLeast, atMost: $atMost, card: $card)";
+    return "Slot(atLeast: $atLeast, atMost: $atMost, card: $card, known: $known)";
   }
 
   @override
@@ -55,9 +55,14 @@ class Slot {
     if (other is! Slot) {
       return false;
     }
-    return atLeast == other.atLeast &&
-        atMost == other.atMost &&
-        other.card == card;
+    return other.atLeast == atLeast &&
+        other.atMost == atMost &&
+        other.card == card &&
+        other.known == known;
+  }
+
+  Slot copy() {
+    return Slot(atLeast: atLeast, atMost: atMost, card: card, known: known);
   }
 }
 
@@ -112,9 +117,15 @@ List<List<Card>> tradeUnkownCards(
     [Random? random]) {
   random ??= Random();
 
-  List<List<Card>> newHands = [
-    for (var hand in hands) List.from(hand)
-  ]; // deep copy hands
+  // deep copy hands
+  List<List<Card>> newHands = [for (var hand in hands) List.from(hand)];
+
+  // get slots for each hand
+  List<List<Slot>> slots = [[], []];
+  for (var player in [0, 1]) {
+    slots[player] = getSlots(hands[player], knownCards[player]);
+  }
+
   // TODO
   // 1. Randomly select cards that have an overlapping range and consider
   //    swapping them
