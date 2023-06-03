@@ -13,6 +13,11 @@ void main() {
           equals(Card(id: 31, suit: Suit.hearts, value: 7)));
     });
 
+    test('toString', () {
+      expect(getCard(7, Suit.hearts).toString(), equals("7♥"));
+      expect(getCard(0, Suit.moons).toString(), equals("0☾"));
+    });
+
     test('getWinner - trump wins', () {
       expect(
           getWinner(leadSuit: Suit.clubs, trick: {

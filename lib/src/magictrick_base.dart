@@ -34,6 +34,16 @@ enum Suit {
   triangles,
 }
 
+const Map<Suit, String> suitString = {
+  Suit.stars: "★",
+  Suit.spades: "♠",
+  Suit.moons: "☾",
+  Suit.hearts: "♥",
+  Suit.diamonds: "♦",
+  Suit.clubs: "♣️",
+  Suit.triangles: "▲",
+};
+
 const trump = Suit.hearts;
 
 /// Represents a card in the deck
@@ -50,7 +60,7 @@ class Card implements Comparable<Card> {
 
   @override
   String toString() {
-    return toJson().toString();
+    return "$value${suitString[suit]}";
   }
 
   @override
