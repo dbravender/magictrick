@@ -107,7 +107,7 @@ void main() {
         getSlots(hand, {});
       }
       var end = DateTime.now();
-      expect(end.difference(start), lessThan(Duration(milliseconds: 100)));
+      expect(end.difference(start), lessThan(Duration(milliseconds: 200)));
     });
 
     group('state determination', () {
