@@ -7,10 +7,10 @@ import 'package:magictrick/magictrick.dart';
 
 /// Many algorithms that select moves run hundreds to thousands of simulations
 /// in order to find the "best" move. A generic constraint solver to determine
-/// legal potential hands from scratch might have to backtrack a lot which
-/// would be too slow to run that many times to get a move so I'm writing
-/// a game-specific algorithm which trades possible cards in-place between
-/// players.
+/// legal potential hands from scratch will have to backtrack a lot which
+/// will be too slow to run so constraints are relaxed. This means the hands
+/// might be in the wrong order and multiple players might have the same card
+/// in some simulations. It's better than letting the AI cheat.
 
 /// 1. Act on a copy of the current game state
 /// 2. Find possible min and max values for each card
@@ -126,10 +126,10 @@ List<Card> possibleCards(Slot slot, Set<Card> visibleCards) {
 }
 
 List<List<Card>> generatePossibleHands(
-    List<List<Card>> hands, List<Set<Card>> visibleCards) {
+    List<List<Card>> hands, Set<Card> visibleCards) {
   List<List<Slot>> slots = [[], [], [], []];
   for (var player in [0, 1, 2, 3]) {
-    slots[player] = getSlots(hands[player], visibleCards[player]);
+    slots[player] = getSlots(hands[player], visibleCards);
   }
 
   var variables = List.generate(56, (x) => x);
@@ -137,19 +137,14 @@ List<List<Card>> generatePossibleHands(
   Map<int, List<Card>> domains = {};
   int index = 0;
 
-  Set<Card> allVisibleCards = Set.of(visibleCards[0])
-    ..addAll(visibleCards[1])
-    ..addAll(visibleCards[2])
-    ..addAll(visibleCards[3]);
-
   for (var slot in slots) {
     for (var s in slot) {
-      domains[index++] = possibleCards(s, allVisibleCards);
+      domains[index++] = possibleCards(s, visibleCards);
     }
   }
 
   var csp = CSP<int, Card>(variables, domains);
-  if (allVisibleCards.length / 4 > 5) {
+  if (visibleCards.length / 4 > 5) {
     // allow repeated cards and non-increasing cards if there are 5 or fewer
     // cards revealed - otherwise it can take minutes to get a valid set of
     // hands

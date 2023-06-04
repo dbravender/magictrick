@@ -23,7 +23,7 @@ void main() {
         getCard(7, Suit.diamonds),
       ];
     });
-    test('findSpotRanges', () {
+    test('getSlots', () {
       expect(
           getSlots(startHand, {}),
           equals([
@@ -116,12 +116,10 @@ void main() {
           hand.sort();
           hands[player].addAll(hand);
         }
-        List<Set<Card>> visibleCards = [
-          Set.from(hands[0]),
-          Set.from(hands[1]),
-          Set.from(hands[2]),
-          Set.from(hands[3]),
-        ];
+        Set<Card> visibleCards = Set.from(hands[0])
+          ..addAll(hands[1])
+          ..addAll(hands[2])
+          ..addAll(hands[3]);
         var newHands = generatePossibleHands(hands, visibleCards);
         expect(newHands, equals(hands));
       });
@@ -135,12 +133,9 @@ void main() {
           hand.sort();
           hands[player].addAll(hand);
         }
-        List<Set<Card>> visibleCards = [
-          Set.from(hands[0]),
-          Set.from(hands[1]),
-          Set.from(hands[2]),
-          {}
-        ];
+        Set<Card> visibleCards = Set.from(hands[0])
+          ..addAll(hands[1])
+          ..addAll(hands[2]);
         var newHands = generatePossibleHands(hands, visibleCards);
         expect(newHands, equals(hands));
       });
@@ -152,12 +147,12 @@ void main() {
           for (var i = 0; i < 100; i++) {
             var start = DateTime.now();
             List<List<Card>> hands = [[], [], [], []];
-            List<Set<Card>> visibleCards = [{}, {}, {}, {}];
+            Set<Card> visibleCards = {};
             var deal = deck();
             for (var player in [0, 1, 2, 3]) {
               var hand = deal.sublist(0, 14);
               deal.removeRange(0, 14);
-              visibleCards[player].addAll(hand.sublist(0, knownCards));
+              visibleCards.addAll(hand.sublist(0, knownCards));
               hand.sort();
               hands[player].addAll(hand);
             }
