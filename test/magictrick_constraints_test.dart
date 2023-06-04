@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:magictrick/magictrick.dart';
 import 'package:magictrick/src/magictrick_constraints.dart';
 import 'package:test/test.dart';
@@ -98,8 +96,6 @@ void main() {
     });
 
     test('getSlots speed', () {
-      // getSlots needs to be run after each card is traded
-      // when determining hands so it needs to be fast
       var start = DateTime.now();
       for (var i = 0; i < 5000; i++) {
         var hand = deck().sublist(0, 14);
@@ -111,52 +107,83 @@ void main() {
     });
 
     group('state determination', () {
-      List<List<Card>> startHands = [];
-      Random randomWithSeed = Random(1);
-      setUp(() {
-        startHands = [
-          [
-            getCard(0, Suit.clubs),
-            getCard(0, Suit.spades),
-            getCard(1, Suit.spades),
-            getCard(1, Suit.clubs),
-            getCard(2, Suit.triangles),
-            getCard(2, Suit.moons),
-            getCard(3, Suit.hearts),
-            getCard(3, Suit.moons),
-            getCard(4, Suit.stars),
-            getCard(5, Suit.triangles),
-            getCard(5, Suit.spades),
-            getCard(6, Suit.hearts),
-            getCard(7, Suit.stars),
-            getCard(7, Suit.diamonds),
-          ],
-          [
-            getCard(0, Suit.hearts),
-            getCard(0, Suit.triangles),
-            getCard(0, Suit.diamonds),
-            getCard(2, Suit.spades),
-            getCard(3, Suit.triangles),
-            getCard(4, Suit.moons),
-            getCard(5, Suit.stars),
-            getCard(5, Suit.hearts),
-            getCard(6, Suit.stars),
-            getCard(6, Suit.spades),
-            getCard(6, Suit.diamonds),
-            getCard(7, Suit.hearts),
-            getCard(7, Suit.clubs),
-            getCard(7, Suit.spades),
-          ],
-        ];
-      });
       test('all cards visible, no shuffling performed', () {
+        List<List<Card>> hands = [[], [], [], []];
+        var deal = deck();
+        for (var player in [0, 1, 2, 3]) {
+          var hand = deal.sublist(0, 14);
+          deal.removeRange(0, 14);
+          hand.sort();
+          hands[player].addAll(hand);
+        }
         List<Set<Card>> visibleCards = [
-          Set.from(startHands[0]),
-          Set.from(startHands[1])
+          Set.from(hands[0]),
+          Set.from(hands[1]),
+          Set.from(hands[2]),
+          Set.from(hands[3]),
         ];
-        var newHands =
-            tradeUnkownCards(startHands, visibleCards, randomWithSeed);
-        expect(newHands, equals(startHands));
+        var newHands = generatePossibleHands(hands, visibleCards);
+        expect(newHands, equals(hands));
+      });
+
+      test('all cards visible except for one player properly filled', () {
+        List<List<Card>> hands = [[], [], [], []];
+        var deal = deck();
+        for (var player in [0, 1, 2, 3]) {
+          var hand = deal.sublist(0, 14);
+          deal.removeRange(0, 14);
+          hand.sort();
+          hands[player].addAll(hand);
+        }
+        List<Set<Card>> visibleCards = [
+          Set.from(hands[0]),
+          Set.from(hands[1]),
+          Set.from(hands[2]),
+          {}
+        ];
+        var newHands = generatePossibleHands(hands, visibleCards);
+        expect(newHands, equals(hands));
+      });
+
+      test('performance test for different numbers of unspecified cards', () {
+        Map<int, Duration> timeForSearch = {};
+        for (var knownCards = 0; knownCards < 14; knownCards++) {
+          timeForSearch[knownCards] ??= Duration(seconds: 0);
+          for (var i = 0; i < 100; i++) {
+            var start = DateTime.now();
+            List<List<Card>> hands = [[], [], [], []];
+            List<Set<Card>> visibleCards = [{}, {}, {}, {}];
+            var deal = deck();
+            for (var player in [0, 1, 2, 3]) {
+              var hand = deal.sublist(0, 14);
+              deal.removeRange(0, 14);
+              visibleCards[player].addAll(hand.sublist(0, knownCards));
+              hand.sort();
+              hands[player].addAll(hand);
+            }
+            generatePossibleHands(hands, visibleCards);
+            var end = DateTime.now();
+            timeForSearch[knownCards] =
+                timeForSearch[knownCards]! + end.difference(start);
+          }
+        }
+        /*
+          0: 0:00:00.038917,
+          1: 0:00:00.023183,
+          2: 0:00:00.018191,
+          3: 0:00:00.018016,
+          4: 0:00:00.017931,
+          5: 0:00:00.017444,
+          6: 0:00:00.291453,
+          7: 0:00:00.149885,
+          8: 0:00:00.045667,
+          9: 0:00:00.046915,
+          10: 0:00:00.037971,
+          11: 0:00:00.035024,
+          12: 0:00:00.034762,
+          13: 0:00:00.034568,
+        */
+        print(timeForSearch);
       });
     });
   });
