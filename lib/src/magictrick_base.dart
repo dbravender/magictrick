@@ -399,6 +399,7 @@ class Game {
     newGame.hands[currentPlayer!] = currentHand;
     if (newGame.state == State.playCard) {
       var card = currentHand.firstWhere((c) => c.id == move);
+      // the card that was played is now "visible" in the hand
       newGame.visibleCards.add(card);
       newGame.changes[0].add(Change(
           type: ChangeType.play,
@@ -407,8 +408,6 @@ class Game {
           player: currentPlayer!));
       newGame.hidePlayable();
       newGame.currentTrick[currentPlayer!] = card;
-      // the card that was played is now "visible" in the hand
-      newGame.visibleCards.add(card);
       if (newGame.bidCards.containsKey(newGame.currentPlayer)) {
         // current player has already bid - keep the playCard state and go
         // to the next player
