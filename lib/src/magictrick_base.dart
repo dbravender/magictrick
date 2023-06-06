@@ -306,7 +306,7 @@ class Game {
   Player? overallWinner;
 
   /// Player who starts a hand
-  int leadPlayer = 0;
+  int handStarter = 0;
 
   /// Current game round - 4 rounds are played per game
   int round = 0;
@@ -322,8 +322,8 @@ class Game {
     hands = [];
     capturedSuits = {0: {}, 1: {}, 2: {}, 3: {}};
     state = State.playCard; // always start in the playCard state
-    currentPlayer = leadPlayer;
-    leadPlayer = (leadPlayer + 1) % 2;
+    currentPlayer = handStarter;
+    handStarter = (handStarter + 1) % 4;
     int dealIndex = changes.length;
     int cardSortingIndex = changes.length + 1;
     changes.addAll([
@@ -373,7 +373,7 @@ class Game {
         game.bidCards[player] = bidCards[player]!;
       }
     }
-    game.leadPlayer = leadPlayer;
+    game.handStarter = handStarter;
     game.hands = newHands;
     game.tricksTaken = Map.from(tricksTaken);
     game.scores = Map.from(scores);
@@ -434,7 +434,6 @@ class Game {
         newGame.state != State.optionalBid) {
       var trickWinner =
           getWinner(leadSuit: newGame.leadSuit!, trick: newGame.currentTrick);
-      newGame.leadPlayer = trickWinner.player;
       var winningCard = trickWinner.card;
       // FIXME: add change for displaying new suits being captured
       newGame.capturedSuits[trickWinner.player]!
