@@ -269,7 +269,7 @@ class Game {
   State state = State.playCard;
 
   /// hands[0] is the human players hand
-  /// AI hands are hands[0-3]
+  /// AI hands are hands[1-3]
   List<List<Card>> hands = [];
 
   /// When a card is flipped face up it is added to visibleCards
@@ -293,6 +293,9 @@ class Game {
   /// Tracks scores for each player
   Map<Player, int> scores = {0: 0, 1: 0, 2: 0, 3: 0};
 
+  /// Track which suits were taken for each player
+  Map<Player, Set<Suit>> capturedSuits = {0: {}, 1: {}, 2: {}, 3: {}};
+
   /// Player whose turn it is
   Player? currentPlayer = 0;
 
@@ -315,8 +318,9 @@ class Game {
   deal() {
     leadSuit = null;
     round += 1;
-    tricksTaken = {0: 0, 1: 0};
+    tricksTaken = {0: 0, 1: 0, 2: 0, 3: 0};
     hands = [];
+    capturedSuits = {0: {}, 1: {}, 2: {}, 3: {}};
     state = State.playCard; // always start in the playCard state
     currentPlayer = leadPlayer;
     leadPlayer = (leadPlayer + 1) % 2;
@@ -366,6 +370,7 @@ class Game {
       newHands.add(List.from(hands[player]));
       if (bidCards[player] != null) {
         game.bidCards[player] = bidCards[player]!;
+        game.capturedSuits[player] = Set.from(capturedSuits[player]!);
       }
     }
     game.leadPlayer = leadPlayer;
@@ -392,22 +397,49 @@ class Game {
     newGame.currentTrick = Map.from(currentTrick);
     List<Card> currentHand = newGame.hands[currentPlayer!];
     newGame.hands[currentPlayer!] = currentHand;
-    var card = currentHand.firstWhere((c) => c.id == move);
-    currentHand.remove(card);
-    newGame.changes[0].add(Change(
-        type: ChangeType.play,
-        dest: Location.play,
-        objectId: move,
-        player: currentPlayer!));
-    newGame.hidePlayable();
-    newGame.currentTrick[currentPlayer!] = card;
-    newGame.currentPlayer = (currentPlayer! + 1) % 4;
+    if (newGame.state == State.playCard) {
+      var card = currentHand.firstWhere((c) => c.id == move);
+      newGame.visibleCards.add(card);
+      newGame.changes[0].add(Change(
+          type: ChangeType.play,
+          dest: Location.play,
+          objectId: move,
+          player: currentPlayer!));
+      newGame.hidePlayable();
+      newGame.currentTrick[currentPlayer!] = card;
+      // the card that was played is now "visible" in the hand
+      newGame.visibleCards.add(card);
+      if (newGame.bidCards.containsKey(newGame.currentPlayer)) {
+        // current player has already bid - keep the playCard state and go
+        // to the next player
+        newGame.currentPlayer = (currentPlayer! + 1) % 4;
+      } else {
+        // the current player has not yet bid - give them the option to bid
+        newGame.state = State.optionalBid;
+      }
+    } else {
+      // bid
+      if (move == pass) {
+        // nothing to do when player passes
+      } else {
+        var card = currentHand.firstWhere((c) => bidOffset - c.id == move);
+        newGame.bidCards[newGame.currentPlayer!] = card;
+        // the card that was bid is now "visible" in the hand
+        newGame.visibleCards.add(card);
+      }
+      newGame.currentPlayer = (currentPlayer! + 1) % 4;
+    }
+
     // end trick
-    if (newGame.currentTrick.length == 4) {
+    if (newGame.currentTrick.length == 4 &&
+        newGame.state != State.optionalBid) {
       var trickWinner =
           getWinner(leadSuit: newGame.leadSuit!, trick: newGame.currentTrick);
       newGame.leadPlayer = trickWinner.player;
       var winningCard = trickWinner.card;
+      // FIXME: add change for displaying new suits being captured
+      newGame.capturedSuits[trickWinner.player]!
+          .addAll(newGame.currentTrick.values.map((c) => c.suit));
       newGame.tricksTaken[trickWinner.player] =
           newGame.tricksTaken[trickWinner]! + 1;
       // winner of the trick leads
@@ -438,7 +470,27 @@ class Game {
       });
       newGame.currentTrick = {};
     }
-    if (newGame.hands[0].isEmpty) {
+    if (visibleCards.length == 56) {
+      // All cards have been played
+      for (var player in [0, 1, 2, 3]) {
+        int points = 0;
+        if (newGame.bidCards[player]!.value == newGame.tricksTaken[player]) {
+          // successful bid
+          points = 3;
+          if (newGame.capturedSuits[player]!.length ==
+              newGame.bidCards[player]!.value) {
+            // prestige bonus
+            points += 2;
+          }
+        } else {
+          // failed bid
+          points =
+              newGame.bidCards[player]!.value - newGame.tricksTaken[player]!;
+          if (points > 0) points *= -1;
+        }
+        // FIXME: add score animation here
+        newGame.scores[player] = newGame.scores[player]! + points;
+      }
       List<Player> winners = [];
       int highestScore = 0;
       newGame.scores.forEach((player, score) {
@@ -494,7 +546,12 @@ class Game {
       return playableCards.map((c) => c.id).toList();
     } else {
       // State.bid
-      return playableCards.map((c) => c.id + bidOffset).toList() + [pass];
+      var moves = playableCards.map((c) => c.id + bidOffset).toList();
+      if (playableCards.length == 1) {
+        // if the player only has one card left they must bid their last card
+        return moves;
+      }
+      return moves + [pass];
     }
   }
 
@@ -522,6 +579,9 @@ class Game {
 
     if (currentPlayer == 0) {
       for (var id in getMoves()) {
+        if (state == State.optionalBid) {
+          id = bidOffset - id;
+        }
         playableChanges.add(Change(
             objectId: id, type: ChangeType.showPlayable, dest: Location.hand));
       }

@@ -1,4 +1,8 @@
-.PHONY: doc json
+.PHONY: doc json ready
+
+ready:
+	dart analyze
+	dart test
 
 doc:
 	dart doc .
