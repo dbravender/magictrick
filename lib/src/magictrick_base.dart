@@ -368,9 +368,9 @@ class Game {
     List<List<Card>> newHands = [];
     for (var player = 0; player < 4; player++) {
       newHands.add(List.from(hands[player]));
+      game.capturedSuits[player] = Set.from(capturedSuits[player]!);
       if (bidCards[player] != null) {
         game.bidCards[player] = bidCards[player]!;
-        game.capturedSuits[player] = Set.from(capturedSuits[player]!);
       }
     }
     game.leadPlayer = leadPlayer;
