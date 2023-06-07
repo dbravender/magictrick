@@ -142,6 +142,9 @@ enum ChangeType {
   /// Highlight the referenced card
   showWinningCard,
 
+  /// Show the player that they captured a new suit
+  suitCaptured,
+
   /// Wait for the user to tap the screen and display the game over dialog
   gameOver,
 }
@@ -162,6 +165,9 @@ enum Location {
 
   /// Each player has a pile of tricks they have taken
   tricksTaken,
+
+  /// Suits the human player has captured
+  suits,
 }
 
 /// Used by the UI to animate cards and other objects
@@ -190,6 +196,9 @@ class Change {
   /// The player to which this change refers
   int player;
 
+  /// The suit captured by a player
+  Suit? suit;
+
   Change(
       {required this.type,
       required this.objectId,
@@ -198,7 +207,8 @@ class Change {
       this.startScore = 0,
       this.endScore = 0,
       this.handOffset = 0,
-      this.player = 0});
+      this.player = 0,
+      this.suit});
 
   factory Change.fromJson(Map<String, dynamic> json) => _$ChangeFromJson(json);
   Map<String, dynamic> toJson() => _$ChangeToJson(this);
@@ -440,7 +450,21 @@ class Game {
       var trickWinner =
           getWinner(leadSuit: newGame.leadSuit!, trick: newGame.currentTrick);
       var winningCard = trickWinner.card;
-      // FIXME: add change for displaying new suits being captured
+      List<Change> revealedSuitChanges = [];
+      for (var suit in newGame.currentTrick.values.map((c) => c.suit)) {
+        if (!newGame.capturedSuits[trickWinner.player]!.contains(suit)) {
+          newGame.capturedSuits[trickWinner.player]!.add(suit);
+          revealedSuitChanges.add(Change(
+              objectId: winningCard.id,
+              dest: Location.suits,
+              suit: suit,
+              type: ChangeType.suitCaptured,
+              player: newGame.currentPlayer ?? 0));
+        }
+      }
+      if (revealedSuitChanges.isNotEmpty) {
+        newGame.changes.add(revealedSuitChanges);
+      }
       newGame.capturedSuits[trickWinner.player]!
           .addAll(newGame.currentTrick.values.map((c) => c.suit));
       newGame.tricksTaken[trickWinner.player] =
@@ -493,8 +517,16 @@ class Game {
               newGame.bidCards[player]!.value - newGame.tricksTaken[player]!;
           if (points > 0) points *= -1;
         }
-        // FIXME: add score animation here
         newGame.scores[player] = newGame.scores[player]! + points;
+        newGame.changes.add([
+          Change(
+              type: ChangeType.score,
+              dest: Location.score,
+              player: player,
+              objectId: 0,
+              startScore: scores[player]!,
+              endScore: newGame.scores[player]!),
+        ]);
       }
       List<Player> preTieBreakerWinners = [];
       int highestScore = 1 << 63; // largest negative number possible
@@ -655,5 +687,13 @@ class Game {
       }
     }
     return "$top\n$middle\n$bottom\n";
+  }
+
+  factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
+  Map<String, dynamic> toJson() => _$GameToJson(this);
+
+  @override
+  String toString() {
+    return toJson().toString();
   }
 }

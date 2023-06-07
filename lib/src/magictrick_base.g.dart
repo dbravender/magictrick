@@ -37,6 +37,7 @@ Change _$ChangeFromJson(Map<String, dynamic> json) => Change(
       endScore: json['endScore'] as int? ?? 0,
       handOffset: json['handOffset'] as int? ?? 0,
       player: json['player'] as int? ?? 0,
+      suit: $enumDecodeNullable(_$SuitEnumMap, json['suit']),
     );
 
 Map<String, dynamic> _$ChangeToJson(Change instance) => <String, dynamic>{
@@ -48,6 +49,7 @@ Map<String, dynamic> _$ChangeToJson(Change instance) => <String, dynamic>{
       'endScore': instance.endScore,
       'handOffset': instance.handOffset,
       'player': instance.player,
+      'suit': _$SuitEnumMap[instance.suit],
     };
 
 const _$ChangeTypeEnumMap = {
@@ -60,6 +62,7 @@ const _$ChangeTypeEnumMap = {
   ChangeType.hidePlayable: 'hidePlayable',
   ChangeType.optionalPause: 'optionalPause',
   ChangeType.showWinningCard: 'showWinningCard',
+  ChangeType.suitCaptured: 'suitCaptured',
   ChangeType.gameOver: 'gameOver',
 };
 
@@ -69,6 +72,7 @@ const _$LocationEnumMap = {
   Location.play: 'play',
   Location.score: 'score',
   Location.tricksTaken: 'tricksTaken',
+  Location.suits: 'suits',
 };
 
 WinningPlayerAndCard _$WinningPlayerAndCardFromJson(
@@ -84,3 +88,72 @@ Map<String, dynamic> _$WinningPlayerAndCardToJson(
       'player': instance.player,
       'card': instance.card,
     };
+
+Game _$GameFromJson(Map<String, dynamic> json) => Game()
+  ..state = $enumDecode(_$StateEnumMap, json['state'])
+  ..hands = (json['hands'] as List<dynamic>)
+      .map((e) => (e as List<dynamic>)
+          .map((e) => Card.fromJson(e as Map<String, dynamic>))
+          .toList())
+      .toList()
+  ..visibleCards = (json['visibleCards'] as List<dynamic>)
+      .map((e) => Card.fromJson(e as Map<String, dynamic>))
+      .toSet()
+  ..bidCards = (json['bidCards'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(int.parse(k), Card.fromJson(e as Map<String, dynamic>)),
+  )
+  ..changes = (json['changes'] as List<dynamic>)
+      .map((e) => (e as List<dynamic>)
+          .map((e) => Change.fromJson(e as Map<String, dynamic>))
+          .toList())
+      .toList()
+  ..currentTrick = (json['currentTrick'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(int.parse(k), Card.fromJson(e as Map<String, dynamic>)),
+  )
+  ..tricksTaken = (json['tricksTaken'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(int.parse(k), e as int),
+  )
+  ..leadSuit = $enumDecodeNullable(_$SuitEnumMap, json['leadSuit'])
+  ..scores = (json['scores'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(int.parse(k), e as int),
+  )
+  ..capturedSuits = (json['capturedSuits'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(int.parse(k),
+        (e as List<dynamic>).map((e) => $enumDecode(_$SuitEnumMap, e)).toSet()),
+  )
+  ..prestigeCount = (json['prestigeCount'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(int.parse(k), e as int),
+  )
+  ..currentPlayer = json['currentPlayer'] as int?
+  ..winner = json['winner'] as int?
+  ..overallWinner = json['overallWinner'] as int?
+  ..handStarter = json['handStarter'] as int
+  ..round = json['round'] as int;
+
+Map<String, dynamic> _$GameToJson(Game instance) => <String, dynamic>{
+      'state': _$StateEnumMap[instance.state]!,
+      'hands': instance.hands,
+      'visibleCards': instance.visibleCards.toList(),
+      'bidCards': instance.bidCards.map((k, e) => MapEntry(k.toString(), e)),
+      'changes': instance.changes,
+      'currentTrick':
+          instance.currentTrick.map((k, e) => MapEntry(k.toString(), e)),
+      'tricksTaken':
+          instance.tricksTaken.map((k, e) => MapEntry(k.toString(), e)),
+      'leadSuit': _$SuitEnumMap[instance.leadSuit],
+      'scores': instance.scores.map((k, e) => MapEntry(k.toString(), e)),
+      'capturedSuits': instance.capturedSuits.map((k, e) =>
+          MapEntry(k.toString(), e.map((e) => _$SuitEnumMap[e]!).toList())),
+      'prestigeCount':
+          instance.prestigeCount.map((k, e) => MapEntry(k.toString(), e)),
+      'currentPlayer': instance.currentPlayer,
+      'winner': instance.winner,
+      'overallWinner': instance.overallWinner,
+      'handStarter': instance.handStarter,
+      'round': instance.round,
+    };
+
+const _$StateEnumMap = {
+  State.playCard: 'playCard',
+  State.optionalBid: 'optionalBid',
+};
