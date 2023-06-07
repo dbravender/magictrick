@@ -296,6 +296,9 @@ class Game {
   /// Track which suits were taken for each player
   Map<Player, Set<Suit>> capturedSuits = {0: {}, 1: {}, 2: {}, 3: {}};
 
+  /// Tracks number of times player received prestige bonus for the tie breaker
+  Map<Player, int> prestigeCount = {0: 0, 1: 0, 2: 0, 3: 0};
+
   /// Player whose turn it is
   Player? currentPlayer = 0;
 
@@ -380,6 +383,7 @@ class Game {
     game.hands = newHands;
     game.tricksTaken = Map.from(tricksTaken);
     game.scores = Map.from(scores);
+    game.prestigeCount = Map.from(prestigeCount);
     game.winner = winner;
     game.overallWinner = overallWinner;
     game.leadSuit = leadSuit;
@@ -483,6 +487,7 @@ class Game {
               newGame.bidCards[player]!.value) {
             // prestige bonus
             points += 2;
+            newGame.prestigeCount[player] = newGame.prestigeCount[player]! + 1;
           }
         } else {
           // failed bid
@@ -493,8 +498,8 @@ class Game {
         // FIXME: add score animation here
         newGame.scores[player] = newGame.scores[player]! + points;
       }
-      List<Player> winners = [];
-      int highestScore = 0;
+      List<Player> preTieBreakerWinners = [];
+      int highestScore = 1 << 63; // largest negative number possible
       newGame.scores.forEach((player, score) {
         if (score > highestScore) {
           highestScore = score;
@@ -502,18 +507,32 @@ class Game {
       });
       newGame.scores.forEach((player, score) {
         if (score == highestScore) {
-          winners.add(player);
+          preTieBreakerWinners.add(player);
           newGame.winner = player;
         }
       });
-      if (winners.contains(currentMCTSPlayer)) {
-        newGame.winner = currentMCTSPlayer;
+
+      int highestPrestigeCount = 0;
+      for (var player in preTieBreakerWinners) {
+        if (newGame.prestigeCount[player]! > highestPrestigeCount) {
+          highestPrestigeCount = newGame.prestigeCount[player]!;
+        }
       }
-      if (newGame.round >= 4 && winners.length == 1) {
+
+      List<Player> winners = [];
+      for (var player in preTieBreakerWinners) {
+        if (newGame.prestigeCount[player]! == highestPrestigeCount) {
+          winners.add(player);
+          newGame.winner = player;
+        }
+      }
+
+      if (newGame.round >= 4) {
         newGame.changes.add([
           Change(type: ChangeType.gameOver, dest: Location.play, objectId: 0),
         ]);
         newGame.overallWinner = newGame.winner;
+        print('overallWinner: ${newGame.overallWinner}');
         return newGame;
       } else {
         newGame.changes.add([
@@ -600,7 +619,7 @@ class Game {
       }
     }
     s +=
-        "Round: $round\nScores: $scores\nBids: $bidCards\nTricks taken: $tricksTaken\nCurrent Trick: $currentTrick\nState: $state\nCurrent Player: $currentPlayer\n";
+        "Round: $round\nScores: $scores\nPrestige Bonus Count:$prestigeCount\nbids: $bidCards\nTricks taken: $tricksTaken\nCurrent Trick: $currentTrick\nState: $state\nCurrent Player: $currentPlayer\n";
     return s;
   }
 
