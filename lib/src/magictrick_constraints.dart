@@ -29,6 +29,12 @@ import 'package:magictrick/magictrick.dart';
 /// 3. Convert this data into constraints
 /// 4. Send constraints to a general CSP and get possible hands
 
+/// There has to be a way to create constraints across players as well
+/// ♦  ♦  ▲  ♥  ★  ▲  ♥  ♠  ☾  ♦  ★  ♣️  ♠  ☾
+/// ▲  ☾  ☾  ☾  ♠  ♥  ♦  ♣️  ♥  ▲  ♠  ♣️  ♥  ▲
+/// ♠  ♥  ♠  ♥  ♠  ♣️  ♦  ▲  ☾  ♦  ★  ☾  ♦  ♠
+/// ★  ♣️  ♣️  ♦  ♣️  ★  ★  ☾  ▲  ★  ▲  ♣️  ♥  ★
+
 class Slot {
   int atLeast;
   int atMost;

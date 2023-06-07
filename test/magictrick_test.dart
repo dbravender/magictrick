@@ -54,4 +54,10 @@ void main() {
               WinningPlayerAndCard(player: 0, card: getCard(1, Suit.clubs))));
     });
   });
+
+  group('text interface', () {
+    test('representation', () {
+      print(Game().representation());
+    });
+  });
 }

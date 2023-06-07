@@ -319,7 +319,7 @@ class Game {
     leadSuit = null;
     round += 1;
     tricksTaken = {0: 0, 1: 0, 2: 0, 3: 0};
-    hands = [];
+    hands = [[], [], [], []];
     capturedSuits = {0: {}, 1: {}, 2: {}, 3: {}};
     state = State.playCard; // always start in the playCard state
     currentPlayer = handStarter;
@@ -334,6 +334,7 @@ class Game {
     for (int y = 0; y < 14; y++) {
       for (int player = 0; player < 4; player++) {
         var card = cards.removeAt(0);
+        hands[player].add(card);
         changes[dealIndex].add(Change(
           type: ChangeType.deal,
           objectId: card.id,
@@ -344,7 +345,7 @@ class Game {
       }
     }
     for (int player = 0; player < 4; player++) {
-      hands[0].sort((a, b) => a.value.compareTo(b.value));
+      hands[player].sort((a, b) => a.value.compareTo(b.value));
       for (int y = 0; y < 14; y++) {
         var card = hands[player][y];
         changes[cardSortingIndex].add(Change(
@@ -401,6 +402,7 @@ class Game {
       var card = currentHand.firstWhere((c) => c.id == move);
       // the card that was played is now "visible" in the hand
       newGame.visibleCards.add(card);
+      newGame.leadSuit ??= card.suit;
       newGame.changes[0].add(Change(
           type: ChangeType.play,
           dest: Location.play,
@@ -408,7 +410,7 @@ class Game {
           player: currentPlayer!));
       newGame.hidePlayable();
       newGame.currentTrick[currentPlayer!] = card;
-      if (newGame.bidCards.containsKey(newGame.currentPlayer)) {
+      if (newGame.bidCards.containsKey(newGame.currentPlayer!)) {
         // current player has already bid - keep the playCard state and go
         // to the next player
         newGame.currentPlayer = (currentPlayer! + 1) % 4;
@@ -421,11 +423,12 @@ class Game {
       if (move == pass) {
         // nothing to do when player passes
       } else {
-        var card = currentHand.firstWhere((c) => bidOffset - c.id == move);
+        var card = currentHand.firstWhere((c) => bidOffset + c.id == move);
         newGame.bidCards[newGame.currentPlayer!] = card;
         // the card that was bid is now "visible" in the hand
         newGame.visibleCards.add(card);
       }
+      newGame.state = State.playCard;
       newGame.currentPlayer = (currentPlayer! + 1) % 4;
     }
 
@@ -439,7 +442,7 @@ class Game {
       newGame.capturedSuits[trickWinner.player]!
           .addAll(newGame.currentTrick.values.map((c) => c.suit));
       newGame.tricksTaken[trickWinner.player] =
-          newGame.tricksTaken[trickWinner]! + 1;
+          newGame.tricksTaken[trickWinner.player]! + 1;
       // winner of the trick leads
       newGame.currentPlayer = trickWinner.player;
       newGame.changes.add([
@@ -586,5 +589,50 @@ class Game {
     } else {
       hidePlayable();
     }
+  }
+
+  String representation() {
+    String s = "state: $state\ncurrentPlayer: $currentPlayer\n";
+    for (var player in [3, 2, 1, 0]) {
+      s += playerHand(player);
+    }
+    return s;
+  }
+
+  String playerHand(Player player) {
+    String top = "";
+    String middle = "";
+    String bottom = "";
+    var moves = getMoves();
+    int offset = 0;
+    Set<Move> playableCards = moves.toSet();
+    if (state == State.optionalBid) {
+      playableCards = moves.map((m) => bidOffset - m).toSet();
+    }
+    for (var card in hands[player]) {
+      if (currentTrick.values.contains(card)) {
+        top += "  P  ";
+      } else if (bidCards.values.contains(card)) {
+        top += "  B  ";
+      } else if (playableCards.contains(card.id)) {
+        top += "  .  ";
+      } else {
+        top += "     ";
+      }
+      if (visibleCards.contains(card)) {
+        middle += " ${card.value}";
+      } else {
+        middle += "  ";
+      }
+      middle += "${suitString[card.suit]}  ";
+      if (player == 0 && currentPlayer == 0) {
+        if (playableCards.contains(card.id)) {
+          bottom += " ${(card.id + offset).toString().padRight(4)}";
+        } else {
+          bottom += "     ";
+        }
+      }
+    }
+    return "$top\n$middle\n$bottom\n";
   }
 }
