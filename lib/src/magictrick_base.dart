@@ -319,6 +319,8 @@ class Game {
     leadSuit = null;
     round += 1;
     tricksTaken = {0: 0, 1: 0, 2: 0, 3: 0};
+    visibleCards = {};
+    bidCards = {};
     hands = [[], [], [], []];
     capturedSuits = {0: {}, 1: {}, 2: {}, 3: {}};
     state = State.playCard; // always start in the playCard state
@@ -390,8 +392,6 @@ class Game {
     var newGame = clone();
     // reset previous MCTS round winner
     newGame.winner = null;
-    // reset previous MCTS round scores
-    newGame.scores = {0: 0, 1: 0, 2: 0, 3: 0};
     Player? currentMCTSPlayer;
     // if (root != null) currentMCTSPlayer = root.gameState!.currentPlayer!;
     newGame.changes = [[]]; // card from player to table
@@ -470,8 +470,9 @@ class Game {
             tricksTaken: newGame.tricksTaken[trickWinner.player]!));
       });
       newGame.currentTrick = {};
+      newGame.leadSuit = null;
     }
-    if (visibleCards.length == 56) {
+    if (newGame.visibleCards.length == 56) {
       // All cards have been played
       for (var player in [0, 1, 2, 3]) {
         int points = 0;
@@ -591,11 +592,15 @@ class Game {
     }
   }
 
-  String representation() {
-    String s = "state: $state\ncurrentPlayer: $currentPlayer\n";
-    for (var player in [3, 2, 1, 0]) {
-      s += playerHand(player);
+  String representation({bool summary = false}) {
+    String s = "";
+    if (!summary) {
+      for (var player in [3, 2, 1, 0]) {
+        s += playerHand(player);
+      }
     }
+    s +=
+        "Round: $round\nScores: $scores\nBids: $bidCards\nTricks taken: $tricksTaken\nCurrent Trick: $currentTrick\nState: $state\nCurrent Player: $currentPlayer\n";
     return s;
   }
 
@@ -603,18 +608,17 @@ class Game {
     String top = "";
     String middle = "";
     String bottom = "";
-    var moves = getMoves();
+    var moves = getMoves().toSet();
     int offset = 0;
-    Set<Move> playableCards = moves.toSet();
     if (state == State.optionalBid) {
-      playableCards = moves.map((m) => bidOffset - m).toSet();
+      offset = bidOffset;
     }
     for (var card in hands[player]) {
       if (currentTrick.values.contains(card)) {
         top += "  P  ";
       } else if (bidCards.values.contains(card)) {
         top += "  B  ";
-      } else if (playableCards.contains(card.id)) {
+      } else if (moves.contains(card.id)) {
         top += "  .  ";
       } else {
         top += "     ";
@@ -626,7 +630,7 @@ class Game {
       }
       middle += "${suitString[card.suit]}  ";
       if (player == 0 && currentPlayer == 0) {
-        if (playableCards.contains(card.id)) {
+        if (moves.contains(card.id + offset)) {
           bottom += " ${(card.id + offset).toString().padRight(4)}";
         } else {
           bottom += "     ";
