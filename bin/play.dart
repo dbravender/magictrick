@@ -14,14 +14,15 @@ void main() {
         stdout.write("move> ");
         var line = stdin.readLineSync(encoding: utf8)!;
         move = int.parse(line);
+        game = game.cloneAndApplyMove(move);
       } catch (e) {
         print("Invalid move? Exception: $e");
         continue;
       }
     } else {
       move = (game.getMoves()..shuffle()).first;
+      game = game.cloneAndApplyMove(move);
     }
-    game = game.cloneAndApplyMove(move);
   }
   print(game.representation());
 }

@@ -396,8 +396,6 @@ class Game {
     var newGame = clone();
     // reset previous MCTS round winner
     newGame.winner = null;
-    Player? currentMCTSPlayer;
-    // if (root != null) currentMCTSPlayer = root.gameState!.currentPlayer!;
     newGame.changes = [[]]; // card from player to table
     newGame.currentTrick = Map.from(currentTrick);
     List<Card> currentHand = newGame.hands[currentPlayer!];
