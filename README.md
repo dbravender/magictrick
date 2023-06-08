@@ -6,6 +6,10 @@ Hopefully, this implementation can be used to learn how to implement game engine
 
 ## Playing a game against an untrained MCTS-only search AI
 
+Head to https://playagame.app/magictrick (sorry for the interface - real interface coming soon!)
+
+Or, locally:
+
 1. Install Dart: https://dart.dev/get-dart
 2. `git clone https://github.com/dbravender/magictrick/`
 3. `cd magictrick`
