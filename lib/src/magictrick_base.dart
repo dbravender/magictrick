@@ -613,6 +613,7 @@ class Game implements GameState<Move, Player> {
   Game? determine(GameState? initialState) {
     // FIXME: using actual state so it runs fast in the browser
     return clone();
+    // ignore: dead_code
     var newGame = (initialState as Game).clone();
     // see magictrick_constraints.dart to see how possible hands are generated
     newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards);
@@ -702,7 +703,6 @@ class Game implements GameState<Move, Player> {
 
   String renderHTML() {
     String s = "<table>";
-    var moves = getMoves().toSet();
     for (var player in [3, 2, 1, 0]) {
       String top = "";
       String middle = "";
