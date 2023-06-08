@@ -150,7 +150,7 @@ List<List<Card>> generatePossibleHands(
   }
 
   var csp = CSP<int, Card>(variables, domains);
-  if (visibleCards.length / 4 > 5) {
+  if (visibleCards.length / 4 > 7) {
     // allow repeated cards and non-increasing cards if there are 5 or fewer
     // cards revealed - otherwise it can take minutes to get a valid set of
     // hands

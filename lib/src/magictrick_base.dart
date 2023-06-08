@@ -2,6 +2,8 @@
 /// This code is © 2023 by Dan Bravender
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:dartmcts/dartmcts.dart';
+import 'package:magictrick/src/magictrick_constraints.dart';
 
 part 'magictrick_base.g.dart';
 
@@ -274,8 +276,7 @@ int valueForCard(Suit leadSuit, Card card) {
 
 /// Rules engine for Magic Trick
 @JsonSerializable()
-class Game {
-  //implements GameState<Move, Player> {
+class Game implements GameState<Move, Player> {
   State state = State.playCard;
 
   /// hands[0] is the human players hand
@@ -310,9 +311,11 @@ class Game {
   Map<Player, int> prestigeCount = {0: 0, 1: 0, 2: 0, 3: 0};
 
   /// Player whose turn it is
+  @override
   Player? currentPlayer = 0;
 
   /// When set it means the hand has a winner (used for tree search)
+  @override
   Player? winner;
 
   /// When set it means the game is over
@@ -401,8 +404,8 @@ class Game {
     return game;
   }
 
-  Game cloneAndApplyMove(Move move) {
-    //, Node<Move, Player>? root) {
+  @override
+  Game cloneAndApplyMove(Move move, Node<Move, Player>? root) {
     var newGame = clone();
     // reset previous MCTS round winner
     newGame.winner = null;
@@ -562,7 +565,6 @@ class Game {
           Change(type: ChangeType.gameOver, dest: Location.play, objectId: 0),
         ]);
         newGame.overallWinner = newGame.winner;
-        print('overallWinner: ${newGame.overallWinner}');
         return newGame;
       } else {
         newGame.changes.add([
@@ -579,6 +581,7 @@ class Game {
     return newGame;
   }
 
+  @override
   List<Move> getMoves() {
     List<Move> moves = [];
     List<Card> playableCards =
@@ -606,7 +609,13 @@ class Game {
     }
   }
 
-  determine() {}
+  @override
+  Game? determine(GameState? initialState) {
+    var newGame = (initialState as Game).clone();
+    // see magictrick_constraints.dart to see how possible hands are generated
+    newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards);
+    return newGame;
+  }
 
   hidePlayable() {
     if (changes.isEmpty) {
@@ -690,6 +699,7 @@ class Game {
   }
 
   factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$GameToJson(this);
 
   @override

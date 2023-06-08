@@ -1,7 +1,7 @@
 name: magictrick
 description: Rules engine for the Magic Trick card game
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+publish_to: none
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -11,6 +11,10 @@ dependencies:
   json_annotation: ^4.8.1
   build_runner: ^2.2.1
   constraint_solver: ^1.0.0
+  dartmcts:
+    git:
+      url: https://github.com/dbravender/dartmcts
+      ref: adec69ca5dd9db3eeccac4c3dbadcf3143cf647e
 
 dev_dependencies:
   lints: ^2.0.0

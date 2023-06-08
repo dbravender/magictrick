@@ -4,7 +4,13 @@ Once complete, this library along with a UI for the game, will be included in Tr
 
 Hopefully, this implementation can be used to learn how to implement game engines for tabletop games generally, and, as a reference for how to implement new games in the Trickster's Table app.
 
-Once I finish cleaning it up I will also release the source for my Dart MCTS / neural network pipeline (currently interfaces with https://github.com/davidADSP/SIMPLE).
+## Playing a game against an untrained MCTS-only search AI
+
+1. Install Dart: https://dart.dev/get-dart
+2. `git clone https://github.com/dbravender/magictrick/`
+3. `cd magictrick`
+4. `make deps`
+5. `make play`
 
 ## Principles
 
