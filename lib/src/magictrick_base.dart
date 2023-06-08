@@ -611,6 +611,8 @@ class Game implements GameState<Move, Player> {
 
   @override
   Game? determine(GameState? initialState) {
+    // FIXME: using actual state so it runs fast in the browser
+    return clone();
     var newGame = (initialState as Game).clone();
     // see magictrick_constraints.dart to see how possible hands are generated
     newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards);
@@ -698,6 +700,38 @@ class Game implements GameState<Move, Player> {
     return "$top\n$middle\n$bottom\n";
   }
 
+  String renderHTML() {
+    String s = "<table>";
+    var moves = getMoves().toSet();
+    for (var player in [3, 2, 1, 0]) {
+      String top = "";
+      String middle = "";
+      String bottom = "";
+      for (var card in hands[player]) {
+        top += "<td>";
+        if (currentTrick.values.contains(card)) {
+          top += "played";
+        } else if (bidCards.values.contains(card)) {
+          top += "bid";
+        }
+        top += "</td>";
+        middle += "<td>";
+        if (visibleCards.contains(card)) {
+          middle +=
+              '<button class="card ${splitSuit(card.suit)}" id="card-${card.id}">${card.value} ${suitString[card.suit]}</button>';
+        } else {
+          middle +=
+              '<button class="card ${splitSuit(card.suit)}" id="card-${card.id}">${suitString[card.suit]}</button>';
+        }
+        middle += "</td>";
+      }
+      s += "<tr>$top</tr><tr>$middle</tr><tr>$bottom</tr>";
+    }
+    s +=
+        '</table><button id="card-113">pass</button><button id="advance-game">advance</button><pre>${representation(summary: true)}</pre>';
+    return s;
+  }
+
   factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$GameToJson(this);
@@ -706,4 +740,8 @@ class Game implements GameState<Move, Player> {
   String toString() {
     return toJson().toString();
   }
+}
+
+String splitSuit(Suit s) {
+  return s.toString().split(".")[1];
 }

@@ -10,6 +10,9 @@ doc:
 deps:
 	dart pub install
 
+js:
+	dart compile js lib/src/js.dart -o html/out.js
+
 json:
 	dart run build_runner build --delete-conflicting-outputs
 
