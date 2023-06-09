@@ -4,6 +4,12 @@ Once complete, this library along with a UI for the game, will be included in Tr
 
 Hopefully, this implementation can be used to learn how to implement game engines for tabletop games generally, and, as a reference for how to implement new games in the Trickster's Table app.
 
+## Plans
+
+* [Card mockups](planning/magictrick-mockups.svg)
+* [App mockup](planning/horizontal-magic-trick.png)
+* [Neural network plans](planning/neural-network.md)
+
 ## Playing a game against an untrained MCTS-only search AI
 
 Head to https://playagame.app/magictrick (sorry for the interface - real interface coming soon!)
