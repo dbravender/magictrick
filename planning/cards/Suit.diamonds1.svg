@@ -1,0 +1,25 @@
+<svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
+  <g id="card" mask="url(#a)">
+    <rect x="1" y="1" width="21" height="21" stroke="none" stroke-linejoin="round" fill="#1eaec4" rx="2" ry="2"/>
+     <g transform="translate(-10, 0)">
+     <g id="layer1" transform="translate(-113.2,-97.9)"> <path style="fill:#bcecf3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-dasharray:none;stroke-opacity:1" d="m 124.78009,99.605963 c -2.83483,3.392067 -6.02613,6.655057 -9.26834,9.788947 3.39499,3.1339 6.63721,6.39688 9.26834,9.78895 2.73297,-3.4566 5.72057,-6.75186 9.26834,-9.78895 -3.44592,-3.13389 -6.5863,-6.46142 -9.26834,-9.788947 z" id="path2139-9-7"/> </g>
+     </g>
+     <g
+     id="layer1"
+     transform="translate(-103.45981,-41.312457)">
+    <g
+       aria-label="1"
+       id="text25251"
+       style="font-size:20.9172px;line-height:1.25;fill:#fffafa;stroke:#000000;stroke-width:0.5"
+       transform="translate(17.640701,3.18111)">
+      <path
+         d="m 103.64843,41.381345 v 15.228293 h -4.207955 v -9.978566 q -1.021347,0.776224 -1.981414,1.256257 -0.949853,0.480034 -2.389954,0.919213 v -3.411301 q 2.124403,-0.684303 3.298953,-1.64437 1.17455,-0.960067 1.83843,-2.369526 z"
+         id="path25812" />
+    </g>
+  </g>
+     <rect x="1" y="1" width="21" height="21" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
+  </g>
+  <mask id="a">
+    <rect x="1" y="1" width="21" height="21" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="2" ry="2"/>
+  </mask>
+</svg>
