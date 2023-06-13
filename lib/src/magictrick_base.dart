@@ -201,6 +201,10 @@ class Change {
   /// The suit captured by a player
   Suit? suit;
 
+  /// In Magic Trick since played cards are faceup and unplayed cards (even in
+  /// your hand) are face-down we need to know the state of each card
+  bool faceup;
+
   Change(
       {required this.type,
       required this.objectId,
@@ -210,7 +214,8 @@ class Change {
       this.endScore = 0,
       this.handOffset = 0,
       this.player = 0,
-      this.suit});
+      this.suit,
+      this.faceup = false});
 
   factory Change.fromJson(Map<String, dynamic> json) => _$ChangeFromJson(json);
   Map<String, dynamic> toJson() => _$ChangeToJson(this);
@@ -630,7 +635,8 @@ class Game implements GameState<Move, Player> {
       playableChanges.add(Change(
           objectId: card.id,
           type: ChangeType.hidePlayable,
-          dest: Location.hand));
+          dest: Location.hand,
+          faceup: visibleCards.contains(card)));
     }
   }
 
@@ -643,7 +649,7 @@ class Game implements GameState<Move, Player> {
     if (currentPlayer == 0) {
       for (var id in getMoves()) {
         if (state == State.optionalBid) {
-          id = bidOffset - id;
+          id = id - bidOffset;
         }
         playableChanges.add(Change(
             objectId: id, type: ChangeType.showPlayable, dest: Location.hand));
