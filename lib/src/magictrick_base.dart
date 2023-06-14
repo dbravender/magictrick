@@ -18,6 +18,9 @@ typedef Move = int;
 const Move bidOffset = 56;
 const Move pass = 113;
 
+/// In the UI card IDs range from 0-56 + 57 for the pass card
+const passCardID = 57;
+
 /// When it is a player's turn they must first play a card
 /// and then they may bid or pass
 enum State {
@@ -481,6 +484,11 @@ class Game implements GameState<Move, Player> {
       newGame.currentPlayer = trickWinner.player;
       newGame.changes.add([
         Change(
+            objectId: passCardID,
+            type: ChangeType.hidePlayable,
+            dest: Location.hand,
+            faceup: false),
+        Change(
             type: ChangeType.showWinningCard,
             dest: Location.play,
             player: trickWinner.player,
@@ -638,6 +646,11 @@ class Game implements GameState<Move, Player> {
           dest: Location.hand,
           faceup: visibleCards.contains(card)));
     }
+    playableChanges.add(Change(
+        objectId: passCardID,
+        type: ChangeType.hidePlayable,
+        dest: Location.hand,
+        faceup: false));
   }
 
   showPlayable() {
@@ -653,6 +666,13 @@ class Game implements GameState<Move, Player> {
         }
         playableChanges.add(Change(
             objectId: id, type: ChangeType.showPlayable, dest: Location.hand));
+      }
+      if (state != State.optionalBid) {
+        playableChanges.add(Change(
+            objectId: passCardID,
+            type: ChangeType.hidePlayable,
+            dest: Location.hand,
+            faceup: false));
       }
     } else {
       hidePlayable();
