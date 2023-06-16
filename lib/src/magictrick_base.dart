@@ -129,6 +129,9 @@ enum ChangeType {
   /// Move tricks in front of the winner
   tricksToWinner,
 
+  /// Increase the trick counter for the winner of a trick
+  increaseTrickCount,
+
   /// Cards all moved to the middle of the screen
   shuffle,
 
@@ -492,7 +495,6 @@ class Game implements GameState<Move, Player> {
       ]);
       newGame.changes.add([]); // trick back to player
       int offset = newGame.changes.length - 1;
-      var bidModified = false;
       newGame.currentTrick.forEach((player, card) {
         if (!newGame.capturedSuits[trickWinner.player]!.contains(card.suit)) {
           // this is the first trick won with this suit - display it
@@ -511,15 +513,14 @@ class Game implements GameState<Move, Player> {
               dest: Location.tricksTaken,
               handOffset: newGame.capturedSuits[trickWinner.player]!.length,
               objectId: card.id,
-              player: trickWinner.player,
-              tricksTaken:
-                  // only send non-0 tricksTaken once so UI updates once
-                  bidModified == false
-                      ? newGame.tricksTaken[trickWinner.player]!
-                      : 0));
-          bidModified = true;
+              player: trickWinner.player));
         }
       });
+      newGame.changes[offset].add(Change(
+          type: ChangeType.increaseTrickCount,
+          dest: Location.score,
+          objectId: 0,
+          tricksTaken: newGame.tricksTaken[trickWinner.player]!));
       newGame.currentTrick = {};
       newGame.leadSuit = null;
     }

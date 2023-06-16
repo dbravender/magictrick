@@ -56,6 +56,7 @@ const _$ChangeTypeEnumMap = {
   ChangeType.deal: 'deal',
   ChangeType.play: 'play',
   ChangeType.tricksToWinner: 'tricksToWinner',
+  ChangeType.increaseTrickCount: 'increaseTrickCount',
   ChangeType.shuffle: 'shuffle',
   ChangeType.score: 'score',
   ChangeType.showPlayable: 'showPlayable',
