@@ -24,14 +24,14 @@ Train the neural network using perfect information about opponents hands. When p
 | 56 bits (one per card) | (currentPlayer + 3 % 4)'s hand |
 | | **Bids** |
 | 8 bits (values 0-7) | currentPlayer's bid - no bits set for no bid |
-| 8 bits (values 0-7) | (currentPlayer + 1 % 4)'s bid - no bits set for no bid |
-| 8 bits (values 0-7) | (currentPlayer + 2 % 4)'s bid - no bits set for no bid |
-| 8 bits (values 0-7) | (currentPlayer + 3 % 4)'s bid - no bits set for no bid |
+| 8 bits (values 0-7) | ((currentPlayer + 1) % 4)'s bid - no bits set for no bid |
+| 8 bits (values 0-7) | ((currentPlayer + 2) % 4)'s bid - no bits set for no bid |
+| 8 bits (values 0-7) | ((currentPlayer + 3) % 4)'s bid - no bits set for no bid |
 | | **Tricks won** |
 | 8 bits | number of tricks won by currentPlayer (8th bit is 8 or more) |
-| 8 bits | number of tricks won by (currentPlayer + 1 % 4) (8th bit is 8 or more) |
-| 8 bits | number of tricks won by (currentPlayer + 2 % 4) (8th bit is 8 or more) |
-| 8 bits | number of tricks won by (currentPlayer + 3 % 4) (8th bit is 8 or more) |
+| 8 bits | number of tricks won by ((currentPlayer + 1) % 4) (8th bit is 8 or more) |
+| 8 bits | number of tricks won by ((currentPlayer + 2) % 4) (8th bit is 8 or more) |
+| 8 bits | number of tricks won by ((currentPlayer + 3) % 4) (8th bit is 8 or more) |
 | | **Suits at each index** |
 | 14 bits | card in currentPlayer's hand at index is a star |
 | 14 bits | card in currentPlayer's hand at index is a spade |
