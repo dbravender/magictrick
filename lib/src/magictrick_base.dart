@@ -519,6 +519,7 @@ class Game implements GameState<Move, Player> {
       newGame.changes[offset].add(Change(
           type: ChangeType.increaseTrickCount,
           dest: Location.score,
+          player: trickWinner.player,
           objectId: 0,
           tricksTaken: newGame.tricksTaken[trickWinner.player]!));
       newGame.currentTrick = {};
