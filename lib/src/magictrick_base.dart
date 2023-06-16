@@ -150,6 +150,9 @@ enum ChangeType {
   /// Show the player that they captured a new suit
   suitCaptured,
 
+  /// Player bid
+  bid,
+
   /// Wait for the user to tap the screen and display the game over dialog
   gameOver,
 }
@@ -173,6 +176,9 @@ enum Location {
 
   /// Suits the human player has captured
   suits,
+
+  /// Players current bid display
+  bid,
 }
 
 /// Used by the UI to animate cards and other objects
@@ -201,12 +207,8 @@ class Change {
   /// The player to which this change refers
   int player;
 
-  /// The suit captured by a player
-  Suit? suit;
-
-  /// In Magic Trick since played cards are faceup and unplayed cards (even in
-  /// your hand) are face-down we need to know the state of each card
-  bool faceup;
+  /// The bid value if the ChangeType is bid
+  int bid;
 
   Change(
       {required this.type,
@@ -217,8 +219,7 @@ class Change {
       this.endScore = 0,
       this.handOffset = 0,
       this.player = 0,
-      this.suit,
-      this.faceup = false});
+      this.bid = 0});
 
   factory Change.fromJson(Map<String, dynamic> json) => _$ChangeFromJson(json);
   Map<String, dynamic> toJson() => _$ChangeToJson(this);
@@ -426,12 +427,12 @@ class Game implements GameState<Move, Player> {
       // the card that was played is now "visible" in the hand
       newGame.visibleCards.add(card);
       newGame.leadSuit ??= card.suit;
+      newGame.hidePlayable();
       newGame.changes[0].add(Change(
           type: ChangeType.play,
           dest: Location.play,
           objectId: move,
           player: currentPlayer!));
-      newGame.hidePlayable();
       newGame.currentTrick[currentPlayer!] = card;
       if (newGame.bidCards.containsKey(newGame.currentPlayer!)) {
         // current player has already bid - keep the playCard state and go
@@ -450,6 +451,12 @@ class Game implements GameState<Move, Player> {
         newGame.bidCards[newGame.currentPlayer!] = card;
         // the card that was bid is now "visible" in the hand
         newGame.visibleCards.add(card);
+        newGame.changes[0].add(Change(
+            objectId: card.id,
+            dest: Location.bid,
+            type: ChangeType.bid,
+            bid: card.value,
+            player: newGame.currentPlayer ?? 0));
       }
       newGame.state = State.playCard;
       newGame.currentPlayer = (currentPlayer! + 1) % 4;
@@ -461,23 +468,6 @@ class Game implements GameState<Move, Player> {
       var trickWinner =
           getWinner(leadSuit: newGame.leadSuit!, trick: newGame.currentTrick);
       var winningCard = trickWinner.card;
-      List<Change> revealedSuitChanges = [];
-      for (var suit in newGame.currentTrick.values.map((c) => c.suit)) {
-        if (!newGame.capturedSuits[trickWinner.player]!.contains(suit)) {
-          newGame.capturedSuits[trickWinner.player]!.add(suit);
-          revealedSuitChanges.add(Change(
-              objectId: winningCard.id,
-              dest: Location.suits,
-              suit: suit,
-              type: ChangeType.suitCaptured,
-              player: newGame.currentPlayer ?? 0));
-        }
-      }
-      if (revealedSuitChanges.isNotEmpty) {
-        newGame.changes.add(revealedSuitChanges);
-      }
-      newGame.capturedSuits[trickWinner.player]!
-          .addAll(newGame.currentTrick.values.map((c) => c.suit));
       newGame.tricksTaken[trickWinner.player] =
           newGame.tricksTaken[trickWinner.player]! + 1;
       // winner of the trick leads
@@ -486,8 +476,7 @@ class Game implements GameState<Move, Player> {
         Change(
             objectId: passCardID,
             type: ChangeType.hidePlayable,
-            dest: Location.hand,
-            faceup: false),
+            dest: Location.hand),
         Change(
             type: ChangeType.showWinningCard,
             dest: Location.play,
@@ -503,13 +492,33 @@ class Game implements GameState<Move, Player> {
       ]);
       newGame.changes.add([]); // trick back to player
       int offset = newGame.changes.length - 1;
+      var bidModified = false;
       newGame.currentTrick.forEach((player, card) {
-        newGame.changes[offset].add(Change(
-            type: ChangeType.tricksToWinner,
-            dest: Location.tricksTaken,
-            objectId: card.id,
-            player: trickWinner.player,
-            tricksTaken: newGame.tricksTaken[trickWinner.player]!));
+        if (!newGame.capturedSuits[trickWinner.player]!.contains(card.suit)) {
+          // this is the first trick won with this suit - display it
+          // in the suit collection
+          newGame.capturedSuits[trickWinner.player]!.add(card.suit);
+          newGame.changes[offset].add(Change(
+              type: ChangeType.suitCaptured,
+              dest: Location.suits,
+              handOffset: newGame.capturedSuits[trickWinner.player]!.length,
+              objectId: card.id,
+              player: trickWinner.player));
+        } else {
+          // player already has this suit displayed
+          newGame.changes[offset].add(Change(
+              type: ChangeType.tricksToWinner,
+              dest: Location.tricksTaken,
+              handOffset: newGame.capturedSuits[trickWinner.player]!.length,
+              objectId: card.id,
+              player: trickWinner.player,
+              tricksTaken:
+                  // only send non-0 tricksTaken once so UI updates once
+                  bidModified == false
+                      ? newGame.tricksTaken[trickWinner.player]!
+                      : 0));
+          bidModified = true;
+        }
       });
       newGame.currentTrick = {};
       newGame.leadSuit = null;
@@ -639,18 +648,16 @@ class Game implements GameState<Move, Player> {
     }
 
     List<Change> playableChanges = changes[changes.length - 1];
-    for (var card in hands[0]) {
+    for (var card in Set.from(hands[0])..removeAll(visibleCards)) {
       playableChanges.add(Change(
           objectId: card.id,
           type: ChangeType.hidePlayable,
-          dest: Location.hand,
-          faceup: visibleCards.contains(card)));
+          dest: Location.hand));
     }
     playableChanges.add(Change(
         objectId: passCardID,
         type: ChangeType.hidePlayable,
-        dest: Location.hand,
-        faceup: false));
+        dest: Location.hand));
   }
 
   showPlayable() {
@@ -671,8 +678,7 @@ class Game implements GameState<Move, Player> {
         playableChanges.add(Change(
             objectId: passCardID,
             type: ChangeType.hidePlayable,
-            dest: Location.hand,
-            faceup: false));
+            dest: Location.hand));
       }
     } else {
       hidePlayable();

@@ -37,7 +37,7 @@ Change _$ChangeFromJson(Map<String, dynamic> json) => Change(
       endScore: json['endScore'] as int? ?? 0,
       handOffset: json['handOffset'] as int? ?? 0,
       player: json['player'] as int? ?? 0,
-      suit: $enumDecodeNullable(_$SuitEnumMap, json['suit']),
+      bid: json['bid'] as int? ?? 0,
     );
 
 Map<String, dynamic> _$ChangeToJson(Change instance) => <String, dynamic>{
@@ -49,7 +49,7 @@ Map<String, dynamic> _$ChangeToJson(Change instance) => <String, dynamic>{
       'endScore': instance.endScore,
       'handOffset': instance.handOffset,
       'player': instance.player,
-      'suit': _$SuitEnumMap[instance.suit],
+      'bid': instance.bid,
     };
 
 const _$ChangeTypeEnumMap = {
@@ -63,6 +63,7 @@ const _$ChangeTypeEnumMap = {
   ChangeType.optionalPause: 'optionalPause',
   ChangeType.showWinningCard: 'showWinningCard',
   ChangeType.suitCaptured: 'suitCaptured',
+  ChangeType.bid: 'bid',
   ChangeType.gameOver: 'gameOver',
 };
 
@@ -73,6 +74,7 @@ const _$LocationEnumMap = {
   Location.score: 'score',
   Location.tricksTaken: 'tricksTaken',
   Location.suits: 'suits',
+  Location.bid: 'bid',
 };
 
 WinningPlayerAndCard _$WinningPlayerAndCardFromJson(
