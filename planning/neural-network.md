@@ -28,10 +28,10 @@ Train the neural network using perfect information about opponents hands. When p
 | 8 bits (values 0-7) | ((currentPlayer + 2) % 4)'s bid - no bits set for no bid |
 | 8 bits (values 0-7) | ((currentPlayer + 3) % 4)'s bid - no bits set for no bid |
 | | **Tricks won** |
-| 8 bits | number of tricks won by currentPlayer (8th bit is 8 or more) |
-| 8 bits | number of tricks won by ((currentPlayer + 1) % 4) (8th bit is 8 or more) |
-| 8 bits | number of tricks won by ((currentPlayer + 2) % 4) (8th bit is 8 or more) |
-| 8 bits | number of tricks won by ((currentPlayer + 3) % 4) (8th bit is 8 or more) |
+| 9 bits | number of tricks won by currentPlayer (8th bit is 8 or more) |
+| 9 bits | number of tricks won by ((currentPlayer + 1) % 4) (9th bit is 8 or more) |
+| 9 bits | number of tricks won by ((currentPlayer + 2) % 4) (9th bit is 8 or more) |
+| 9 bits | number of tricks won by ((currentPlayer + 3) % 4) (9th bit is 8 or more) |
 | | **Suits at each index** |
 | 14 bits | card in currentPlayer's hand at index is a star |
 | 14 bits | card in currentPlayer's hand at index is a spade |
@@ -48,7 +48,7 @@ Train the neural network using perfect information about opponents hands. When p
 | 7 bits | suit of 3rd card played to trick - unset if not yet played |
 | 8 bits | value of 3rd card played to trick - unset if not yet played |
 | | |
-|431 | total input bits|
+|435 | total input bits|
 
 #### Output
 
