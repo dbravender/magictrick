@@ -171,14 +171,21 @@ class MagicTrickNNInterface extends TrainableInterface {
 
     game = game.cloneAndApplyMove(move, null);
 
-    // highest possible score 3 points for correct bid, 2 points for prestige bonus
-    const double maxScore = 5.0;
+    // highest possible score 3 points for correct bid (the 2 points for prestige bonus will be "extra")
+    const double maxScore = 3.0;
+
+    // lowest possible score -14 points for bidding 0 and taking 14 tricks
+    const double minScore = 14.0;
 
     // hand is over
     if (game.winner != null) {
       done = true;
       for (var p = 0; p < playerCount; p++) {
-        reward[p] = game.scores[p]! / maxScore;
+        if (game.scores[p]! > 0) {
+          reward[p] = game.scores[p]! / maxScore;
+        } else {
+          reward[p] = game.scores[p]! / minScore;
+        }
       }
     }
     return StepResponse(
