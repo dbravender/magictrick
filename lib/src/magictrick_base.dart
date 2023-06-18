@@ -10,13 +10,12 @@ part 'magictrick_base.g.dart';
 /// 0 - human player, 1 - left player, 2 - top player, 3 - right player
 typedef Player = int;
 
-/// Each possible move must have a unique ID for the neural network
-/// 0 - 55 card to play (only allowed when state is playCard)
-/// 56 - 112 card to bid (only allowed when state is optionalBid)
-/// 113 - pass (only allowed when state is optionalBid)
+/// Unlike many other trick taking games, in Magic Trick cards are played
+/// without knowing their values. The move IDs are therefore offsets in the
+/// players' hands
 typedef Move = int;
-const Move bidOffset = 56;
-const Move pass = 113;
+const Move bidOffset = 14;
+const Move pass = 28;
 
 /// In the UI card IDs range from 0-56 + 57 for the pass card
 const passCardID = 57;
@@ -426,7 +425,7 @@ class Game implements GameState<Move, Player> {
     List<Card> currentHand = newGame.hands[currentPlayer!];
     newGame.hands[currentPlayer!] = currentHand;
     if (newGame.state == State.playCard) {
-      var card = currentHand.firstWhere((c) => c.id == move);
+      var card = currentHand[move];
       // the card that was played is now "visible" in the hand
       newGame.visibleCards.add(card);
       newGame.leadSuit ??= card.suit;
@@ -450,7 +449,7 @@ class Game implements GameState<Move, Player> {
       if (move == pass) {
         // nothing to do when player passes
       } else {
-        var card = currentHand.firstWhere((c) => bidOffset + c.id == move);
+        var card = currentHand[move - bidOffset];
         newGame.bidCards[newGame.currentPlayer!] = card;
         // the card that was bid is now "visible" in the hand
         newGame.visibleCards.add(card);
@@ -605,31 +604,52 @@ class Game implements GameState<Move, Player> {
     return newGame;
   }
 
-  @override
-  List<Move> getMoves() {
+  List<Move> playableCardsToHandOffsets(
+      List<Card> hand, Set<Card> playableCards,
+      {int offset = 0}) {
     List<Move> moves = [];
-    List<Card> playableCards =
-        (hands[currentPlayer!].toSet()..removeAll(visibleCards)).toList();
+    hand.asMap().forEach((i, card) {
+      if (playableCards.contains(card)) {
+        moves.add(i + offset);
+      }
+    });
+    return moves;
+  }
+
+  Set<Card> getPlayableCards() {
+    Set<Card> playableCards =
+        (hands[currentPlayer!].toSet()..removeAll(visibleCards));
     if (state == State.playCard) {
       if (leadSuit != null) {
         // must follow
-        moves = playableCards
-            .where((c) => c.suit == leadSuit)
-            .map((c) => c.id)
-            .toList();
-        if (moves.isNotEmpty) {
-          return moves;
+        var mustFollowCards =
+            playableCards.where((c) => c.suit == leadSuit).toSet();
+        if (mustFollowCards.isNotEmpty) {
+          return mustFollowCards;
         }
       }
-      return playableCards.map((c) => c.id).toList();
+      return playableCards;
+    } else {
+      // All cards can be bid
+      return playableCards;
+    }
+  }
+
+  @override
+  List<Move> getMoves() {
+    Set<Card> playableCards = getPlayableCards();
+    if (state == State.playCard) {
+      return playableCardsToHandOffsets(hands[currentPlayer!], playableCards);
     } else {
       // State.bid
-      var moves = playableCards.map((c) => c.id + bidOffset).toList();
       if (playableCards.length == 1) {
         // if the player only has one card left they must bid their last card
-        return moves;
+        return playableCardsToHandOffsets(hands[currentPlayer!], playableCards,
+            offset: bidOffset);
       }
-      return moves + [pass];
+      return playableCardsToHandOffsets(hands[currentPlayer!], playableCards,
+              offset: bidOffset) +
+          [pass];
     }
   }
 
@@ -669,12 +689,11 @@ class Game implements GameState<Move, Player> {
     List<Change> playableChanges = changes[changes.length - 1];
 
     if (currentPlayer == 0) {
-      for (var id in getMoves()) {
-        if (state == State.optionalBid) {
-          id = id - bidOffset;
-        }
+      for (var card in getPlayableCards()) {
         playableChanges.add(Change(
-            objectId: id, type: ChangeType.showPlayable, dest: Location.hand));
+            objectId: card.id,
+            type: ChangeType.showPlayable,
+            dest: Location.hand));
       }
       if (state != State.optionalBid) {
         playableChanges.add(Change(
