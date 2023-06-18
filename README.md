@@ -2,6 +2,8 @@
 
 Once complete, this library along with a UI for the game, will be included in Trickster's Table, an app that allows users to play licensed implementations of modern trick taking games. See below for more information about Trickster's Table.
 
+![screenshot](screenshots/screenshot01.png)
+
 Hopefully, this implementation can be used to learn how to implement game engines for tabletop games generally, and, as a reference for how to implement new games in the Trickster's Table app.
 
 ## Plans
