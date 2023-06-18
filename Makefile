@@ -1,4 +1,4 @@
-.PHONY: doc json ready test
+.PHONY: doc json ready test runtrainingserver
 
 ready:
 	dart analyze
@@ -21,3 +21,6 @@ json:
 
 play:
 	dart run bin/play.dart
+
+runtrainingserver:
+	dart run bin/trainingserver.dart

@@ -15,7 +15,7 @@ dependencies:
   dartmcts:
     git:
       url: https://github.com/dbravender/dartmcts
-      ref: 5459025f16d17cda1d1f3d0dceaa4105898c15fb
+      ref: 98097d9464e6988b3deb3b241bb83ad356b4bd42
 
 dev_dependencies:
   lints: ^2.0.0
