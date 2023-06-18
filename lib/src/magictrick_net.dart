@@ -131,7 +131,7 @@ List<double> encodeGameV1(Game game) {
   // tricks won
   for (var offset = 0; offset < 4; offset++) {
     var tricksTaken =
-        max(game.tricksTaken[game.currentPlayer! + offset] ?? 0, 8);
+        min(game.tricksTaken[game.currentPlayer! + offset] ?? 0, 8);
     l.addAll(initOneHot(9, value: tricksTaken));
   }
   // suits at each index for the current player
