@@ -161,6 +161,19 @@ StepResponse stepV2(int move) {
   }
 ```
 
+#### Results
+
+Command run (on https://github.com/davidADSP/SIMPLE/pull/34 revision 68bf1ba7d29d0b2d5d0762dd7e4a3435face07d5):
+
+    docker-compose exec app mpirun -np 6 python3 train.py -r -e remote --entcoeff 0.01 -t .05
+
+The threshold was lowered because the rewards will be much lower.
+
+Command run on this repo at revision 4bca078cfc52a7d4db59562a3a6eafd513e8b0f9:
+
+    make runtrainingserver
+
+
 ### Version 3
 
 Add suits that players have captured to the observation data. Hopefully this data can be used to learn how to achieve and/or block the Prestige bonus.
