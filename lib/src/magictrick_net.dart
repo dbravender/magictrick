@@ -166,7 +166,7 @@ class MagicTrickNNInterface extends TrainableInterface {
 
   @override
   StepResponse step(int move) {
-    return stepV1(move);
+    return stepV2(move);
   }
 
   StepResponse stepV1(int move) {
