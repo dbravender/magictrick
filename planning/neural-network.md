@@ -61,3 +61,117 @@ In most card games, the output of the neural network is the ID of the card to pl
 | 1 bit | pass (during optionalBid state) |
 | | |
 | 29 bits | total output bits |
+
+#### Reward
+
+```dart
+StepResponse stepV1(int move) {
+    bool done = false;
+    List<double> reward = List.filled(playerCount, 0.0);
+
+    game = game.cloneAndApplyMove(move, null);
+
+    // highest possible score 3 points for correct bid (the 2 points for prestige bonus will be "extra")
+    const double maxScore = 3.0;
+
+    // lowest possible score -14 points for bidding 0 and taking 14 tricks
+    const double minScore = 14.0;
+
+    // hand is over
+    if (game.winner != null) {
+      done = true;
+      for (var p = 0; p < playerCount; p++) {
+        if (game.scores[p]! > 0) {
+          reward[p] = game.scores[p]! / maxScore;
+        } else {
+          reward[p] = game.scores[p]! / minScore;
+        }
+      }
+    }
+    return StepResponse(
+      done: done,
+      reward: reward,
+    );
+  }
+```
+
+#### Results
+
+Command run (on https://github.com/davidADSP/SIMPLE/pull/34 revision 68bf1ba7d29d0b2d5d0762dd7e4a3435face07d5):
+
+    docker-compose exec app mpirun -np 6 python3 train.py -r -e remote --entcoeff 0.01 -t .15
+
+Command run on this repo at revision ea6bf6bb18097c41a02f76c145c6c71b6ffbe52f:
+
+    make runtrainingserver
+
+Results playing each of the following models in one match and then alone against random opponents (neural network's best play only - no tree search):
+
+| model | hands_with_highest_score | average_score | wins_against_random | average_score_against_random |
+| ----- | ------------------------ | ------------- | ------------------- | ---------------------------- |
+| magictrickv1_1468416.tflite | 389 | -0.732 | 534 | -0.684 |
+| magictrickv1_1837056.tflite | 390 | -0.706 | 560 | -0.584 |
+| magictrickv1_2021376.tflite | 393 | -0.803 | 522 | -0.807 |
+| magictrickv1_3065856.tflite | 387 | -0.654 | 520 | -0.688 |
+| draw | 29 | 0 | 0 | 0 |
+
+### Version 2
+
+The neural network encoding is the same but the reward for positive scores is different. The player that scores the highest receives a reward of 1. Everyone player's reward is divided by the maximum score and the number of players that received a positive score. This should incentivize plays that score for the current player and block opponents from scoring.
+
+#### Reward
+
+```dart
+StepResponse stepV2(int move) {
+    bool done = false;
+    List<double> reward = List.filled(playerCount, 0.0);
+
+    game = game.cloneAndApplyMove(move, null);
+
+    // the highest score achieved this hand
+    int maxScore = -100000;
+    int positiveScoringPlayers = 0;
+    game.scores.forEach((player, score) {
+      if (score > maxScore) {
+        maxScore = score;
+      }
+      if (score > 0) {
+        positiveScoringPlayers++;
+      }
+    });
+
+    // lowest possible score -14 points for bidding 0 and taking 14 tricks
+    const double minScore = 14.0;
+
+    // hand is over
+    if (game.winner != null) {
+      done = true;
+      for (var p = 0; p < playerCount; p++) {
+        if (game.scores[p]! > 0) {
+          reward[p] = game.scores[p]! / maxScore / positiveScoringPlayers;
+        } else {
+          reward[p] = game.scores[p]! / minScore;
+        }
+      }
+    }
+    return StepResponse(
+      done: done,
+      reward: reward,
+    );
+  }
+```
+
+### Version 3
+
+Add suits that players have captured to the observation data. Hopefully this data can be used to learn how to achieve and/or block the Prestige bonus.
+
+Add the following to the encoding:
+
+| bits | description |
+| ---- | ----------- |
+| 7 bits (one for each suit) | Suits captured by currentPlayer (for prestige bonus tracking) |
+| 7 bits (one for each suit) | suits captured by (currentPlayer + 1) % 4 |
+| 7 bits (one for each suit) | suits captured by (currentPlayer + 2) % 4 |
+| 7 bits (one for each suit) | suits captured by (currentPlayer + 3) % 4 | |
+
+Keep everything else the same.

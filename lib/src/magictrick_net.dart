@@ -166,6 +166,10 @@ class MagicTrickNNInterface extends TrainableInterface {
 
   @override
   StepResponse step(int move) {
+    return stepV1(move);
+  }
+
+  StepResponse stepV1(int move) {
     bool done = false;
     List<double> reward = List.filled(playerCount, 0.0);
 
@@ -183,6 +187,44 @@ class MagicTrickNNInterface extends TrainableInterface {
       for (var p = 0; p < playerCount; p++) {
         if (game.scores[p]! > 0) {
           reward[p] = game.scores[p]! / maxScore;
+        } else {
+          reward[p] = game.scores[p]! / minScore;
+        }
+      }
+    }
+    return StepResponse(
+      done: done,
+      reward: reward,
+    );
+  }
+
+  StepResponse stepV2(int move) {
+    bool done = false;
+    List<double> reward = List.filled(playerCount, 0.0);
+
+    game = game.cloneAndApplyMove(move, null);
+
+    // the highest score achieved this hand
+    int maxScore = -100000;
+    int positiveScoringPlayers = 0;
+    game.scores.forEach((player, score) {
+      if (score > maxScore) {
+        maxScore = score;
+      }
+      if (score > 0) {
+        positiveScoringPlayers++;
+      }
+    });
+
+    // lowest possible score -14 points for bidding 0 and taking 14 tricks
+    const double minScore = 14.0;
+
+    // hand is over
+    if (game.winner != null) {
+      done = true;
+      for (var p = 0; p < playerCount; p++) {
+        if (game.scores[p]! > 0) {
+          reward[p] = game.scores[p]! / maxScore / positiveScoringPlayers;
         } else {
           reward[p] = game.scores[p]! / minScore;
         }
