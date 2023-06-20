@@ -433,7 +433,7 @@ class Game implements GameState<Move, Player> {
       newGame.changes[0].add(Change(
           type: ChangeType.play,
           dest: Location.play,
-          objectId: move,
+          objectId: card.id,
           player: currentPlayer!));
       newGame.currentTrick[currentPlayer!] = card;
       if (newGame.bidCards.containsKey(newGame.currentPlayer!)) {
@@ -695,10 +695,12 @@ class Game implements GameState<Move, Player> {
             type: ChangeType.showPlayable,
             dest: Location.hand));
       }
-      if (state != State.optionalBid) {
+      if (state == State.optionalBid) {
         playableChanges.add(Change(
             objectId: passCardID,
-            type: ChangeType.hidePlayable,
+            type: getMoves().contains(pass)
+                ? ChangeType.showPlayable
+                : ChangeType.hidePlayable,
             dest: Location.hand));
       }
     } else {
