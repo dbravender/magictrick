@@ -17,7 +17,7 @@ List<double> initOneHot(int length, {double filler = 0, int? value}) {
 
 /// Convert the game state to a fixed-length list of doubles
 List<double> encodeGame(Game game) {
-  return encodeGameV1(game);
+  return encodeGameV3(game);
 }
 
 /// One-hot encode cards by ID
@@ -47,6 +47,22 @@ List<double> encodeCard(Card? card) {
   }
   l[card.value] = 1;
   l.addAll(initOneHot(7, value: suitToValue[card.suit]));
+  return l;
+}
+
+List<double> encodeSuitsCaptured(Set<Suit> suitsCaptured) {
+  List<double> l = [];
+  for (var suit in [
+    Suit.clubs,
+    Suit.diamonds,
+    Suit.hearts,
+    Suit.moons,
+    Suit.spades,
+    Suit.stars,
+    Suit.triangles
+  ]) {
+    l.add(suitsCaptured.contains(suit) ? 1.0 : 0.0);
+  }
   return l;
 }
 
@@ -146,6 +162,42 @@ List<double> encodeGameV1(Game game) {
   return l;
 }
 
+/// First encoding
+List<double> encodeGameV3(Game game) {
+  List<double> l = [];
+  // hands
+  List<Set<Card>> hands = [
+    for (var hand in game.hands) hand.toSet()..removeAll(game.visibleCards)
+  ];
+  for (var offset = 0; offset < 4; offset++) {
+    l.addAll(encodeCards(hands[(game.currentPlayer! + offset) % 4]));
+  }
+  // bids
+  for (var offset = 0; offset < 4; offset++) {
+    l.addAll(initOneHot(8,
+        value: game.bidCards[game.currentPlayer! + offset]?.value));
+  }
+  // tricks won
+  for (var offset = 0; offset < 4; offset++) {
+    var tricksTaken =
+        min(game.tricksTaken[game.currentPlayer! + offset] ?? 0, 8);
+    l.addAll(initOneHot(9, value: tricksTaken));
+  }
+  // suits at each index for the current player
+  l.addAll(encodeSuitOrder(game.hands[game.currentPlayer!]));
+  // current trick
+  for (var offset = 1; offset < 4; offset++) {
+    Card? card = game.currentTrick[(game.currentPlayer! + offset) % 4];
+    l.addAll(encodeCard(card));
+  }
+  // cards remaining in hand / 14
+  l.add(hands[game.currentPlayer!].length / 14.0);
+  l.addAll(encodeSuitsCaptured(game.capturedSuits[game.currentPlayer!]!));
+  // legal moves must always be appended to the observation data
+  l.addAll(legalMoves(game));
+  return l;
+}
+
 class MagicTrickNNInterface extends TrainableInterface {
   Game game = Game();
   List<int> startScores = [];
@@ -161,7 +213,7 @@ class MagicTrickNNInterface extends TrainableInterface {
 
   @override
   List<double> observation() {
-    return encodeGame(game);
+    return encodeGameV3(game);
   }
 
   @override

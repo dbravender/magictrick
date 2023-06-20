@@ -94,6 +94,14 @@ void main() {
           ]));
     });
 
+    test('encodeSuitsCaptured', () {
+      Game game = Game();
+      game.state = State.optionalBid;
+      var capturedSuits = {Suit.clubs, Suit.diamonds, Suit.spades};
+      expect(encodeSuitsCaptured(capturedSuits),
+          equals([1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]));
+    });
+
     group('legalMoves', () {
       test('length', () {
         Game game = Game();
@@ -191,7 +199,7 @@ void main() {
     test('encodeGame', () {
       Game game = Game();
       while (game.overallWinner == null) {
-        expect(encodeGame(game).length, equals(464));
+        expect(encodeGame(game).length, equals(472));
         var moves = game.getMoves();
         moves.shuffle();
         game = game.cloneAndApplyMove(moves.first, null);

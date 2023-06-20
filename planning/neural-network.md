@@ -173,18 +173,15 @@ Command run on this repo at revision 4bca078cfc52a7d4db59562a3a6eafd513e8b0f9:
 
     make runtrainingserver
 
-
 ### Version 3
 
-Add suits that players have captured to the observation data. Hopefully this data can be used to learn how to achieve and/or block the Prestige bonus.
+Add the number of cards left in hand for current player and suits that players have captured to the observation data. Hopefully this data can be used to learn how to bid better (using the cards left observation data) and achieve the Prestige bonus.
 
 Add the following to the encoding:
 
 | bits | description |
 | ---- | ----------- |
+| 1 double | Cards remaining in hand / 14 |
 | 7 bits (one for each suit) | Suits captured by currentPlayer (for prestige bonus tracking) |
-| 7 bits (one for each suit) | suits captured by (currentPlayer + 1) % 4 |
-| 7 bits (one for each suit) | suits captured by (currentPlayer + 2) % 4 |
-| 7 bits (one for each suit) | suits captured by (currentPlayer + 3) % 4 | |
 
 Keep everything else the same.
