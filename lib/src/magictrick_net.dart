@@ -273,7 +273,7 @@ class MagicTrickNNInterface extends TrainableInterface {
 
   @override
   List<double> observation() {
-    return encodeGameV3(game);
+    return encodeGame(game);
   }
 
   @override
