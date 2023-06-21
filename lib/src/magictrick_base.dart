@@ -655,9 +655,6 @@ class Game implements GameState<Move, Player> {
 
   @override
   Game? determine(GameState? initialState) {
-    // FIXME: using actual state so it runs fast in the browser
-    return clone();
-    // ignore: dead_code
     var newGame = (initialState as Game).clone();
     // see magictrick_constraints.dart to see how possible hands are generated
     newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards);

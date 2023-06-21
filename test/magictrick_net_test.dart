@@ -1,5 +1,4 @@
 import 'package:magictrick/magictrick.dart';
-import 'package:magictrick/src/magictrick_net.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -159,6 +158,57 @@ void main() {
         expect(decodePlay(game, encodeMoves(game, [1])), equals(1));
       });
 
+      test('encodeValueRanges', () {
+        List<Card> startHand = [
+          getCard(0, Suit.clubs),
+          getCard(0, Suit.spades),
+          getCard(1, Suit.spades),
+          getCard(1, Suit.clubs),
+          getCard(2, Suit.triangles),
+          getCard(2, Suit.moons),
+          getCard(3, Suit.hearts),
+          getCard(3, Suit.moons),
+          getCard(4, Suit.stars),
+          getCard(5, Suit.triangles),
+          getCard(5, Suit.spades),
+          getCard(6, Suit.hearts),
+          getCard(7, Suit.stars),
+          getCard(7, Suit.diamonds),
+        ];
+        expect(
+            encodeValueRanges(startHand, {getCard(3, Suit.hearts)}),
+            equals([
+              0.0,
+              0.2857142857142857,
+              0.0,
+              0.2857142857142857,
+              0.14285714285714285,
+              0.42857142857142855,
+              0.14285714285714285,
+              0.42857142857142855,
+              0.14285714285714285,
+              0.42857142857142855,
+              0.14285714285714285,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.8571428571428571,
+              0.42857142857142855,
+              0.8571428571428571,
+              0.42857142857142855,
+              1.0,
+              0.42857142857142855,
+              1.0,
+              0.5714285714285714,
+              1.0,
+              0.5714285714285714,
+              1.0,
+              0.5714285714285714,
+              1.0
+            ]));
+      });
+
       test('decodePlay bidCard', () {
         Game game = Game();
         game.state = State.optionalBid;
@@ -199,7 +249,7 @@ void main() {
     test('encodeGame', () {
       Game game = Game();
       while (game.overallWinner == null) {
-        expect(encodeGame(game).length, equals(472));
+        expect(encodeGame(game).length, equals(598));
         var moves = game.getMoves();
         moves.shuffle();
         game = game.cloneAndApplyMove(moves.first, null);

@@ -1,8 +1,8 @@
 import 'dart:math';
 
-//import 'package:dartmcts/net.dart';
 import 'package:dartmcts/net.dart';
 import 'package:magictrick/magictrick.dart';
+import 'package:magictrick/src/magictrick_constraints.dart';
 
 /// Initialize and optionally set a value in a one-hot array
 /// one-hot arrays are a common way to pass data to a neural network
@@ -17,7 +17,7 @@ List<double> initOneHot(int length, {double filler = 0, int? value}) {
 
 /// Convert the game state to a fixed-length list of doubles
 List<double> encodeGame(Game game) {
-  return encodeGameV3(game);
+  return encodeGameV4(game);
 }
 
 /// One-hot encode cards by ID
@@ -162,7 +162,13 @@ List<double> encodeGameV1(Game game) {
   return l;
 }
 
-/// First encoding
+/// Second encoding
+List<double> encodeGameV2(Game game) {
+  // uses the same encoding as V1 - only the reward function has changed
+  return encodeGameV1(game);
+}
+
+/// Third encoding
 List<double> encodeGameV3(Game game) {
   List<double> l = [];
   // hands
@@ -192,6 +198,60 @@ List<double> encodeGameV3(Game game) {
   }
   // cards remaining in hand / 14
   l.add(hands[game.currentPlayer!].length / 14.0);
+  l.addAll(encodeSuitsCaptured(game.capturedSuits[game.currentPlayer!]!));
+  // legal moves must always be appended to the observation data
+  l.addAll(legalMoves(game));
+  return l;
+}
+
+List<double> encodeValueRanges(List<Card> hand, Set<Card> knownCards) {
+  List<double> l = [];
+  List<Slot> slots = getSlots(hand, knownCards);
+  for (var slot in slots) {
+    l.add(slot.atLeast / 7);
+    l.add(slot.atMost / 7);
+  }
+  return l;
+}
+
+/// Fourth encoding
+List<double> encodeGameV4(Game game) {
+  // The idea behind this encoding is to stop sending perfect information
+  // to the neural network and instead send information about which cards
+  // have been revealed and potential value ranges for cards that have not
+  // been revealed
+  List<double> l = [];
+  // bids
+  for (var offset = 0; offset < 4; offset++) {
+    // bid bit
+    l.add(game.bidCards[game.currentPlayer! + offset]?.value == null ? 0 : 1);
+    // bid value divided by 14 to keep it consistent with the tricks won
+    // counter
+    l.add((game.bidCards[game.currentPlayer! + offset]?.value ?? 0) / 14.0);
+    l.add((game.tricksTaken[game.currentPlayer! + offset] ?? 0) / 14.0);
+  }
+  // suits at each index for all players
+  l.addAll(encodeSuitOrder(game.hands[game.currentPlayer!]));
+  l.addAll(encodeSuitOrder(game.hands[(game.currentPlayer! + 1) % 4]));
+  l.addAll(encodeSuitOrder(game.hands[(game.currentPlayer! + 2) % 4]));
+  l.addAll(encodeSuitOrder(game.hands[(game.currentPlayer! + 3) % 4]));
+  // lowest and highest possible value for each slot
+  l.addAll(
+      encodeValueRanges(game.hands[game.currentPlayer!], game.visibleCards));
+  l.addAll(encodeValueRanges(
+      game.hands[(game.currentPlayer! + 1) % 4], game.visibleCards));
+  l.addAll(encodeValueRanges(
+      game.hands[(game.currentPlayer! + 2) % 4], game.visibleCards));
+  l.addAll(encodeValueRanges(
+      game.hands[(game.currentPlayer! + 3) % 4], game.visibleCards));
+  // current trick
+  for (var offset = 1; offset < 4; offset++) {
+    Card? card = game.currentTrick[(game.currentPlayer! + offset) % 4];
+    l.addAll(encodeCard(card));
+  }
+  Set<Card> currentHand = game.hands[0].toSet()..removeAll(game.visibleCards);
+  // cards remaining in hand
+  l.add(currentHand.length / 14.0);
   l.addAll(encodeSuitsCaptured(game.capturedSuits[game.currentPlayer!]!));
   // legal moves must always be appended to the observation data
   l.addAll(legalMoves(game));
