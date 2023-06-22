@@ -185,3 +185,27 @@ Add the following to the encoding:
 | 7 bits (one for each suit) | Suits captured by currentPlayer (for prestige bonus tracking) |
 
 Keep everything else the same.
+
+### Version 4
+
+Everything is the same except:
+
+* Bids are converted to doubles (not one-hot encoded) to save space
+* Tricks taken are also converted to doubles
+* The suit order is added for all players (was only added for current player in previous encoding)
+* Possible high and low value ranges are encoded for each card in every player's hand
+
+Removed perfect information about each player's cards and added:
+
+| bits | description |
+| ---- | ----------- |
+| 1 bit per player | Set to 1 if the player has bid (to differentiate between a zero bid) |
+| 1 double per player | Bid value for each player / 14 (to keep it in scale with tricks taken) |
+| 1 double per player | Tricks taken for each player / 14 (using double instead of one-hot encoding to save space) |
+| 14 * 7 bits per player | For each suit, whether or not the card at index x is of that suit |
+| 14 doubles for each player | Highest possible value of card at position x |
+| 14 doubles for each player | Lowest possible value of card at position x |
+
+New encoding size: 598 (17MB tflite)
+
+Output size is the same: 29 bits.
