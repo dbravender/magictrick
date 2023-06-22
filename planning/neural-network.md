@@ -4,14 +4,16 @@
 
 * There are 56 cards (0-7 in 7 suits)
 * Cards are always ordered from lowest to highest in each hand
-
-## Plan
-
-Train the neural network using perfect information about opponents hands. When playing, multiple simulations will be run using possible hands given the current gamestate.
+* Bids are made from your hand after playing a card - the value of the revealed card (0-7) becomes your bid
+* If you take as many tricks as you bid, you get 3 points
+* If you don't make your bid, you lose the number of points by which you missed your bid
+* There is an extra bonus of 2 points if the tricks you won contain as many distinct suits as your bid
 
 ## Specific implementations
 
 ### Version 1
+
+The initial plan is to train the neural network using perfect information about opponents hands. When playing, multiple simulations will be run using possible hands given the current gamestate.
 
 #### Observation
 
@@ -97,23 +99,13 @@ StepResponse stepV1(int move) {
 
 #### Results
 
-Command run (on https://github.com/davidADSP/SIMPLE/pull/34 revision 68bf1ba7d29d0b2d5d0762dd7e4a3435face07d5):
-
-    docker-compose exec app mpirun -np 6 python3 train.py -r -e remote --entcoeff 0.01 -t .15
-
 Command run on this repo at revision ea6bf6bb18097c41a02f76c145c6c71b6ffbe52f:
 
     make runtrainingserver
 
-Results playing each of the following models in one match and then alone against random opponents (neural network's best play only - no tree search):
+Command run (on https://github.com/davidADSP/SIMPLE/pull/34 revision 68bf1ba7d29d0b2d5d0762dd7e4a3435face07d5):
 
-| model | hands_with_highest_score | average_score | wins_against_random | average_score_against_random |
-| ----- | ------------------------ | ------------- | ------------------- | ---------------------------- |
-| magictrickv1_1468416.tflite | 389 | -0.732 | 534 | -0.684 |
-| magictrickv1_1837056.tflite | 390 | -0.706 | 560 | -0.584 |
-| magictrickv1_2021376.tflite | 393 | -0.803 | 522 | -0.807 |
-| magictrickv1_3065856.tflite | 387 | -0.654 | 520 | -0.688 |
-| draw | 29 | 0 | 0 | 0 |
+    docker-compose exec app mpirun -np 6 python3 train.py -r -e remote --entcoeff 0.01 -t .15
 
 ### Version 2
 
@@ -163,15 +155,15 @@ StepResponse stepV2(int move) {
 
 #### Results
 
+Command run on this repo at revision 4bca078cfc52a7d4db59562a3a6eafd513e8b0f9:
+
+    make runtrainingserver
+
 Command run (on https://github.com/davidADSP/SIMPLE/pull/34 revision 68bf1ba7d29d0b2d5d0762dd7e4a3435face07d5):
 
     docker-compose exec app mpirun -np 6 python3 train.py -r -e remote --entcoeff 0.01 -t .05
 
 The threshold was lowered because the rewards will be much lower.
-
-Command run on this repo at revision 4bca078cfc52a7d4db59562a3a6eafd513e8b0f9:
-
-    make runtrainingserver
 
 ### Version 3
 
@@ -187,6 +179,8 @@ Add the following to the encoding:
 Keep everything else the same.
 
 ### Version 4
+
+Because the observation data in versions 1-3 contained perfect information players were making bids immediately. In hindsight, training a model for a game like Magic Trick with perfect information was bound to run into issues like this. The goal of this version is to get the network to bid later in a hand when enough information has been revealed so it can make an informed bid.
 
 Everything is the same except:
 
@@ -209,3 +203,13 @@ Removed perfect information about each player's cards and added:
 New encoding size: 598 (17MB tflite)
 
 Output size is the same: 29 bits.
+
+#### Results
+
+Command run on this repo at revision 0aa7e9afea9423eb9c486111aa845131dbd41500:
+
+    make runtrainingserver
+
+Command run (on https://github.com/davidADSP/SIMPLE/pull/34 revision 68bf1ba7d29d0b2d5d0762dd7e4a3435face07d5):
+
+    docker-compose exec app mpirun -np 6 python3 train.py -r -e remote --entcoeff 0.01 -t .05
