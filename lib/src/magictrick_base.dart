@@ -452,6 +452,7 @@ class Game implements GameState<Move, Player> {
         var card = currentHand[move - bidOffset];
         newGame.bidCards[newGame.currentPlayer!] = card;
         // the card that was bid is now "visible" in the hand
+        newGame.hidePlayable();
         newGame.visibleCards.add(card);
         newGame.changes[0].add(Change(
             objectId: card.id,
@@ -474,6 +475,7 @@ class Game implements GameState<Move, Player> {
           newGame.tricksTaken[trickWinner.player]! + 1;
       // winner of the trick leads
       newGame.currentPlayer = trickWinner.player;
+      newGame.hidePlayable();
       newGame.changes.add([
         Change(
             objectId: passCardID,
@@ -667,42 +669,33 @@ class Game implements GameState<Move, Player> {
     }
 
     List<Change> playableChanges = changes[changes.length - 1];
-    for (var card in Set.from(hands[0])..removeAll(visibleCards)) {
+    Set<Card> cards = Set.from(deck())..removeAll(visibleCards);
+    for (var card in cards) {
       playableChanges.add(Change(
           objectId: card.id,
           type: ChangeType.hidePlayable,
           dest: Location.hand));
     }
-    playableChanges.add(Change(
-        objectId: passCardID,
-        type: ChangeType.hidePlayable,
-        dest: Location.hand));
   }
 
   showPlayable() {
     if (changes.isEmpty) {
       changes = [[]];
     }
+    hidePlayable();
     List<Change> playableChanges = changes[changes.length - 1];
-
-    if (currentPlayer == 0) {
-      for (var card in getPlayableCards()) {
-        playableChanges.add(Change(
-            objectId: card.id,
-            type: ChangeType.showPlayable,
-            dest: Location.hand));
-      }
-      if (state == State.optionalBid) {
-        playableChanges.add(Change(
-            objectId: passCardID,
-            type: getMoves().contains(pass)
-                ? ChangeType.showPlayable
-                : ChangeType.hidePlayable,
-            dest: Location.hand));
-      }
-    } else {
-      hidePlayable();
+    for (var card in getPlayableCards()) {
+      playableChanges.add(Change(
+          objectId: card.id,
+          type: ChangeType.showPlayable,
+          dest: Location.hand));
     }
+    playableChanges.add(Change(
+        objectId: passCardID,
+        type: getMoves().contains(pass)
+            ? ChangeType.showPlayable
+            : ChangeType.hidePlayable,
+        dest: Location.hand));
   }
 
   String representation({bool summary = false}) {
