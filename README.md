@@ -1,8 +1,12 @@
+## Magic Trick Rules Engine
+
 `magictrick` is an implementation of the game Magic Trick by Chris Wray. Chris has agreed to allow me (Dan Bravender) to release the source code for this engine. The game rules for Magic Trick were created by Chris Wray, all rights reserved.
 
 Once complete, this library along with a UI for the game, will be included in Trickster's Table, an app that allows users to play licensed implementations of modern trick taking games. See below for more information about Trickster's Table.
 
 ## Trickster's Table
+
+<img src="screenshots/screenshot01.png" width="150px" align="right"/>
 
 Trickster's Table is funded by donations through Patreon: https://www.patreon.com/TrickstersTable and Ko-fi: https://ko-fi.com/tricksterstable 50% of donations are shared with designers/rights holders of games that appear in the app (divided by play time) and 50% of donations are used to fund the development of new games.
 
@@ -10,8 +14,6 @@ The app is free and has no ads or microtransactions!
 
 * Android: https://play.google.com/store/apps/details?id=app.playagame.tiger
 * iOS: https://apps.apple.com/us/app/tricksters-table/id1668506875
-
-![screenshot](screenshots/screenshot01.png)
 
 Hopefully, this implementation of `magictrick` can be used to learn how to implement game engines for tabletop games generally, and, as a reference for how to implement new games in the Trickster's Table app.
 
@@ -61,6 +63,8 @@ Hopefully, this implementation of `magictrick` can be used to learn how to imple
     ```
 
     Each `Game` has a `List<List<Change>>` `changes` property. While the engine is updating the game state it's adding new `changes`. Each sublist animates simultaneously.
+
+    ⚠️ The UI layer should never access the game state. All information needed to make a change has to be included when the engine outputs the change. When a change is rendered the game state might not have all the information needed to render a given change. For example, when a hand is over, trying to find the index of a card in a player's hand will not work because the game state will contains the cards for the next hand.
 
 * Each `Game` must implement the `GameState` interface:
 
