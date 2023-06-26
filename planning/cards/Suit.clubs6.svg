@@ -1,5 +1,5 @@
 <svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
-  <g id="card" mask="url(#a)">
+  <g id="card">
     <rect x="1" y="1" width="21" height="21" stroke="none" stroke-linejoin="round" fill="#82bb37" rx="2" ry="2"/>
      <g transform="translate(-10, 0)">
      <g id="layer1" transform="translate(-135.7787,-70.6255575)"> <path style="color:#000000;display:block;overflow:visible;visibility:visible;fill:#cce6a9;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.519377;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none" d="m 145.35598,80.807295 c -3.45726,-1.460726 -8.54281,0.281534 -7.33958,4.211928 1.17255,3.830115 6.23635,2.989564 7.98741,0.658054 -0.7305,4.420618 -2.01347,5.10884 -2.78243,6.06841 h 8.16406 c -0.82718,-1.02617 -2.32922,-1.647792 -3.21006,-6.128984 1.76446,2.327556 7.06887,3.134441 8.22449,-0.640296 1.13679,-3.713311 -3.98749,-5.827954 -7.39501,-4.14697 3.2675,-1.940656 4.44093,-8.31417 -1.74769,-8.31417 -6.2497,0 -5.20696,6.498063 -1.90119,8.292028 z" id="rect3667-8-12-1-6"/> </g>
@@ -16,9 +16,7 @@
          id="path26757" />
     </g>
   </g>
+     <rect x="0" y="0" width="22" height="22" stroke-width="1px" stroke="black" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
      <rect x="1" y="1" width="21" height="21" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
   </g>
-  <mask id="a">
-    <rect x="1" y="1" width="21" height="21" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="2" ry="2"/>
-  </mask>
 </svg>
