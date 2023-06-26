@@ -1,5 +1,5 @@
 <svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
-  <g id="card">
+  <g id="card" mask="url(#a)">
     <rect x="1" y="1" width="21" height="21" stroke="none" stroke-linejoin="round" fill="#fdb612" rx="2" ry="2"/>
      <g transform="translate(-10,0)">
      <g id="layer1" transform="translate(-68.75,-239.31908)"> <g id="path40437-9-1-7"   transform="matrix(0.51826821,-0.01361055,0.01361055,0.51826821,83.677183,233.16154)" style="stroke-width:0.964419;stroke-dasharray:none"> <path style="color:#000000;fill:#feeabb;stroke-width:0.964419;stroke-dasharray:none" d="m 1.9174013,39.54639 1.1407855,12.647293 -11.1844112,-6.013682 -11.6757686,4.993181 2.263178,-12.495338 -8.356807,-9.561338 12.583132,-1.708861 6.5109778,-10.902412 5.5136253,11.439203 12.3808129,2.823277 z" id="path583-3" /> <path style="color:#000000;fill:#000000;stroke-width:0.964419;stroke-dasharray:none" d="m -6.7597656,15.5625 -6.8261724,11.431641 -13.193359,1.791015 8.761719,10.025391 -2.373047,13.101562 L -8.1484375,46.675781 3.578125,52.980469 2.3828125,39.720703 12.001953,30.515625 -0.97851563,27.556641 Z m -0.083984,1.884766 5.2460938,10.884765 11.7812498,2.685547 -8.7304686,8.353516 0.019531,0.214843 1.0664063,11.820313 -10.6425781,-5.722656 -11.1093756,4.75 2.152344,-11.888672 -7.951172,-9.095703 11.972656,-1.626953 z" id="path585-7" /> </g></g>
@@ -17,7 +17,9 @@
          id="path25812" />
     </g>
   </g>
-     <rect x="0" y="0" width="22" height="22" stroke-width="1px" stroke="black" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
      <rect x="1" y="1" width="21" height="21" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
   </g>
+  <mask id="a">
+    <rect x="1" y="1" width="21" height="21" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="2" ry="2"/>
+  </mask>
 </svg>
