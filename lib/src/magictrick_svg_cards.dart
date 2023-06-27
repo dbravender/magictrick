@@ -161,15 +161,15 @@ String card({
   return """
 <svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
   <g id="card" mask="url(#a)">
-    <rect x="1" y="1" width="21" height="21" stroke="none" stroke-linejoin="round" fill="$color" rx="2" ry="2"/>
+    <rect x="0" y="0" width="23" height="23" stroke="none" stroke-linejoin="round" fill="$color" rx="3" ry="3"/>
      <g transform="${value != null ? suits[suit]!.translateWhenValuePresent : ""}">
      ${suits[suit]}
      </g>
      ${value != null ? numerals[value] : ""}
-     <rect x="1" y="1" width="21" height="21" stroke-width="$borderWidth" stroke="$borderColor" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
+     <rect x="0" y="0" width="23" height="23" stroke-width="$borderWidth" stroke="$borderColor" stroke-linejoin="round" fill="none" rx="3" ry="3"/>
   </g>
   <mask id="a">
-    <rect x="1" y="1" width="21" height="21" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="2" ry="2"/>
+    <rect x="0" y="0" width="23" height="23" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="3" ry="3"/>
   </mask>
 </svg>
 """;

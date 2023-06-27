@@ -1,6 +1,6 @@
 <svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
   <g id="card" mask="url(#a)">
-    <rect x="1" y="1" width="21" height="21" stroke="none" stroke-linejoin="round" fill="#bf101e" rx="2" ry="2"/>
+    <rect x="0" y="0" width="23" height="23" stroke="none" stroke-linejoin="round" fill="#bf101e" rx="3" ry="3"/>
      <g transform="translate(-10, 0)">
      <g id="layer1" transform="translate(-91,-76.881918)"> <path  id="path30-0-8-4" d="m 102.41344,96.744843 c -1.06463,-3.7069 -3.948145,-6.47787 -6.311364,-9.42505 -1.238486,-1.4897 -2.410846,-3.41854 -1.888292,-5.40914 0.6033,-2.09777 3.149081,-3.26892 5.223227,-2.57744 1.385429,0.42043 2.508029,1.51375 3.043159,2.82073 0.47765,-0.71902 0.85273,-1.52899 1.592,-2.03889 1.77627,-1.45814 4.76316,-1.23696 6.17035,0.61539 1.03656,1.30205 0.81477,3.1195 0.11864,4.52023 -1.15153,2.42467 -3.25301,4.21788 -4.84391,6.35023 -1.20388,1.53933 -2.28597,3.21464 -2.8461,5.08885 -0.0384,0.0894 -0.19074,0.15827 -0.25775,0.055 z" style="fill:#f3737d;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-dasharray:none;stroke-opacity:1" /></g>
      </g>
@@ -18,9 +18,9 @@
     </g>
   </g>
 
-     <rect x="1" y="1" width="21" height="21" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="2" ry="2"/>
+     <rect x="0" y="0" width="23" height="23" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="3" ry="3"/>
   </g>
   <mask id="a">
-    <rect x="1" y="1" width="21" height="21" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="2" ry="2"/>
+    <rect x="0" y="0" width="23" height="23" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="3" ry="3"/>
   </mask>
 </svg>
