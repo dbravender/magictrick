@@ -156,11 +156,12 @@ String card({
   required double borderWidth,
   required Suit suit,
   int? value,
+  double opacity = 1.0,
 }) {
   String color = suitColors[suit]!;
   return """
 <svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
-  <g id="card" mask="url(#a)">
+  <g id="card" mask="url(#a)" opacity="$opacity">
     <rect x="0" y="0" width="23" height="23" stroke="none" stroke-linejoin="round" fill="$color" rx="3" ry="3"/>
      <g transform="${value != null ? suits[suit]!.translateWhenValuePresent : ""}">
      ${suits[suit]}
