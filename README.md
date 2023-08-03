@@ -17,6 +17,10 @@ The app is free and has no ads or microtransactions!
 
 Hopefully, this implementation of `magictrick` can be used to learn how to implement game engines for tabletop games generally, and, as a reference for how to implement new games in the Trickster's Table app.
 
+### Video showing how to play the game ###
+
+[![How to play Magic Trick in the Trickster's Table](https://img.youtube.com/vi/2ZCy9f9_5vs/0.jpg)](https://www.youtube.com/watch?v=2ZCy9f9_5vs "How to play Magic Trick in the Trickster&#39;s Table app")
+
 ## Plans
 
 * [Card mockups](planning/magictrick-mockups.svg)
