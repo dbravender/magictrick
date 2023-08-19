@@ -2,7 +2,7 @@
 
 `magictrick` is an implementation of the game Magic Trick by Chris Wray. Chris has agreed to allow me (Dan Bravender) to release the source code for this engine. The game rules for Magic Trick were created by Chris Wray, all rights reserved.
 
-Once complete, this library along with a UI for the game, will be included in Trickster's Table, an app that allows users to play licensed implementations of modern trick taking games. See below for more information about Trickster's Table.
+This library along with a proprietary UI for the game, is included in Trickster's Table, an app that allows users to play licensed implementations of modern trick taking games. See below for more information about Trickster's Table.
 
 ## Trickster's Table
 
@@ -16,6 +16,10 @@ The app is free and has no ads or microtransactions!
 * iOS: https://apps.apple.com/us/app/tricksters-table/id1668506875
 
 Hopefully, this implementation of `magictrick` can be used to learn how to implement game engines for tabletop games generally, and, as a reference for how to implement new games in the Trickster's Table app.
+
+### Video showing how to play the game ###
+
+[![How to play Magic Trick in the Trickster's Table](https://img.youtube.com/vi/2ZCy9f9_5vs/0.jpg)](https://www.youtube.com/watch?v=2ZCy9f9_5vs "How to play Magic Trick in the Trickster&#39;s Table app")
 
 ## Plans
 
