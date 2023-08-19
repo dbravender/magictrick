@@ -13,9 +13,10 @@ dependencies:
   build_runner: ^2.2.1
   constraint_solver: ^1.0.0
   dartmcts:
-    git:
-      url: https://github.com/dbravender/dartmcts
-      ref: 98097d9464e6988b3deb3b241bb83ad356b4bd42
+    path: ../dartmcts
+    # git:
+    #   url: https://github.com/dbravender/dartmcts
+    #   ref: 98097d9464e6988b3deb3b241bb83ad356b4bd42
 
 dev_dependencies:
   lints: ^2.0.0

@@ -585,6 +585,11 @@ class Game implements GameState<Move, Player> {
         }
       }
 
+      if (winners.contains(0)) {
+        // Report that the human player won ties
+        newGame.winner = 0;
+      }
+
       if (newGame.round >= 4) {
         newGame.changes.add([
           Change(type: ChangeType.gameOver, dest: Location.play, objectId: 0),
