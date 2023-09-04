@@ -96,7 +96,7 @@ Card getCard(int value, Suit suit) {
 }
 
 /// Create a new shuffled copy of the deck
-List<Card> deck() {
+List<Card> deck([Random? random]) {
   List<Card> deck = [];
 
   /// For the UI and neural network each game element must have a unique ID
@@ -113,7 +113,7 @@ List<Card> deck() {
       reverseLookup[card.suit]![card.value] = card.id;
     }
   }
-  deck.shuffle();
+  deck.shuffle(random);
   return deck;
 }
 
@@ -341,7 +341,7 @@ class Game implements GameState<Move, Player> {
   /// Current game round - 4 rounds are played per game
   int round = 0;
 
-  Game() {
+  Game({this.random}) {
     deal();
   }
 
@@ -362,7 +362,7 @@ class Game implements GameState<Move, Player> {
       [], // deal
       [], // card sorting
     ]);
-    List<Card> cards = deck();
+    List<Card> cards = deck(random);
     for (int y = 0; y < 14; y++) {
       for (int player = 0; player < 4; player++) {
         var card = cards.removeAt(0);
@@ -667,7 +667,8 @@ class Game implements GameState<Move, Player> {
   Game? determine(GameState? initialState) {
     var newGame = (initialState as Game).clone();
     // see magictrick_constraints.dart to see how possible hands are generated
-    newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards);
+    newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards,
+        random: random ?? Random());
     return newGame;
   }
 

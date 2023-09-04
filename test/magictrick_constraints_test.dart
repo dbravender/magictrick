@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:magictrick/magictrick.dart';
 import 'package:magictrick/src/magictrick_constraints.dart';
 import 'package:test/test.dart';
@@ -120,7 +122,8 @@ void main() {
           ..addAll(hands[1])
           ..addAll(hands[2])
           ..addAll(hands[3]);
-        var newHands = generatePossibleHands(hands, visibleCards);
+        var newHands =
+            generatePossibleHands(hands, visibleCards, random: Random());
         expect(newHands, equals(hands));
       });
 
@@ -136,7 +139,8 @@ void main() {
         Set<Card> visibleCards = Set.from(hands[0])
           ..addAll(hands[1])
           ..addAll(hands[2]);
-        var newHands = generatePossibleHands(hands, visibleCards);
+        var newHands =
+            generatePossibleHands(hands, visibleCards, random: Random());
         expect(newHands, equals(hands));
       });
 
@@ -156,7 +160,7 @@ void main() {
               hand.sort();
               hands[player].addAll(hand);
             }
-            generatePossibleHands(hands, visibleCards);
+            generatePossibleHands(hands, visibleCards, random: Random());
             var end = DateTime.now();
             timeForSearch[knownCards] =
                 timeForSearch[knownCards]! + end.difference(start);

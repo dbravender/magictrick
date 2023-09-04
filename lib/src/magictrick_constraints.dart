@@ -1,4 +1,5 @@
 import 'package:constraint_solver/constraint_solver.dart';
+import 'dart:math';
 
 import 'package:magictrick/magictrick.dart';
 
@@ -117,7 +118,8 @@ List<Slot> getSlots(List<Card> hand, Set<Card> knownCards) {
   return slots;
 }
 
-List<Card> possibleCards(Slot slot, Set<Card> visibleCards) {
+List<Card> possibleCards(Slot slot, Set<Card> visibleCards,
+    {required Random random}) {
   List<Card> r = [];
   if (slot.known) {
     return [slot.card];
@@ -127,12 +129,13 @@ List<Card> possibleCards(Slot slot, Set<Card> visibleCards) {
     if (visibleCards.contains(card)) continue;
     r.add(card);
   }
-  r.shuffle();
+  r.shuffle(random);
   return r;
 }
 
 List<List<Card>> generatePossibleHands(
-    List<List<Card>> hands, Set<Card> visibleCards) {
+    List<List<Card>> hands, Set<Card> visibleCards,
+    {required Random random}) {
   List<List<Slot>> slots = [[], [], [], []];
   for (var player in [0, 1, 2, 3]) {
     slots[player] = getSlots(hands[player], visibleCards);
@@ -145,7 +148,7 @@ List<List<Card>> generatePossibleHands(
 
   for (var slot in slots) {
     for (var s in slot) {
-      domains[index++] = possibleCards(s, visibleCards);
+      domains[index++] = possibleCards(s, visibleCards, random: random);
     }
   }
 
