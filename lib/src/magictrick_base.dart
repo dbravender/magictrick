@@ -4,6 +4,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:dartmcts/dartmcts.dart';
 import 'package:magictrick/src/magictrick_constraints.dart';
+import 'dart:math';
 
 part 'magictrick_base.g.dart';
 
@@ -288,6 +289,8 @@ int valueForCard(Suit leadSuit, Card card) {
 /// Rules engine for Magic Trick
 @JsonSerializable()
 class Game implements GameState<Move, Player> {
+  @override
+  Random? random;
   State state = State.playCard;
 
   /// hands[0] is the human players hand
