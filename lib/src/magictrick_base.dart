@@ -665,6 +665,9 @@ class Game implements GameState<Move, Player> {
 
   @override
   Game? determine(GameState? initialState) {
+    // Tried and failed to make determine deterministic but I think the
+    // constraint_solver library is non-deterministic because when
+    // I return game here the play is deterministic
     var newGame = (initialState as Game).clone();
     // see magictrick_constraints.dart to see how possible hands are generated
     newGame.hands = generatePossibleHands(newGame.hands, newGame.visibleCards,
