@@ -37,6 +37,8 @@ enum Suit {
   diamonds,
   clubs,
   triangles,
+  trump,
+  back,
 }
 
 const Map<Suit, String> suitString = {
@@ -797,6 +799,12 @@ class Game implements GameState<Move, Player> {
   String toString() {
     return toJson().toString();
   }
+
+  @override
+  int actionSize = -1;
+
+  @override
+  int id = -1;
 }
 
 String splitSuit(Suit s) {
