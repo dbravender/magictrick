@@ -1,0 +1,13 @@
+<svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
+  <g id="card" mask="url(#a)" opacity="1.0">
+    <rect x="0" y="0" width="23" height="23" stroke="none" stroke-linejoin="round" fill="#ffffff" rx="3" ry="3"/>
+     <g transform="">
+     
+     </g>
+     
+     <rect x="0" y="0" width="23" height="23" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="3" ry="3"/>
+  </g>
+  <mask id="a">
+    <rect x="0" y="0" width="23" height="23" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="3" ry="3"/>
+  </mask>
+</svg>

@@ -1,0 +1,14 @@
+<svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
+  <g id="card" mask="url(#a)" opacity="1.0">
+    <rect x="0" y="0" width="23" height="23" stroke="none" stroke-linejoin="round" fill="url(#pattern1)" rx="3" ry="3"/>
+     <g transform="">
+     <defs><pattern id='pattern1' patternUnits='userSpaceOnUse' width='8' height='9'>
+      <g transform="scale(0.07)"><polygon fill='gold' points='120 120 60 120 90 90 120 60 120 0 120 0 60 60 0 0 0 60 30 90 60 120 120 120 '/></g></pattern></defs>
+     </g>
+     
+     <rect x="0" y="0" width="23" height="23" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="3" ry="3"/>
+  </g>
+  <mask id="a">
+    <rect x="0" y="0" width="23" height="23" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="3" ry="3"/>
+  </mask>
+</svg>

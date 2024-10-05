@@ -1,0 +1,24 @@
+<svg width="23" height="23" xmlns="http://www.w3.org/2000/svg">
+  <g id="card" mask="url(#a)" opacity="1.0">
+    <rect x="0" y="0" width="23" height="23" stroke="none" stroke-linejoin="round" fill="#ffffff" rx="3" ry="3"/>
+     <g transform="null">
+     
+     </g>
+      <g
+     id="layer1"
+     transform="translate(-85.03686,-203.89077)">
+    <g
+       aria-label="7"
+       id="text25275"
+       style="font-size:20.9172px;line-height:1.25;fill:#fffafa;stroke:#000000;stroke-width:0.5">
+      <path
+         d="m 93.286856,208.14077 h 12.143824 v 2.8087 q -1.58309,1.42989 -2.64529,3.09469 -1.2869,2.02226 -2.03248,4.50414 -0.59238,1.93035 -0.796654,4.56542 h -4.146671 q 0.490246,-3.66663 1.542235,-6.14851 1.051988,-2.48187 3.32959,-5.31101 h -7.394554 z"
+         id="path26946" />
+    </g>
+  </g>
+     <rect x="0" y="0" width="23" height="23" stroke-width="1.0" stroke="white" stroke-linejoin="round" fill="none" rx="3" ry="3"/>
+  </g>
+  <mask id="a">
+    <rect x="0" y="0" width="23" height="23" stroke="#fff" stroke-linejoin="round" fill="#fff" rx="3" ry="3"/>
+  </mask>
+</svg>
